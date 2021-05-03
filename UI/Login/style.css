@@ -1,0 +1,97 @@
+* { 
+  box-sizing: border-box;
+  color: red;
+}
+body {
+  font-size: 14px;
+}
+.random1 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 35px;
+  opacity: 1;
+}
+.r2 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 25px;
+  opacity: 1;
+}
+.r3 {
+  background: rgba(196,196,196,1);
+  width: 213px;
+  height: 30px;
+}
+.r4 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 25px;
+  opacity: 1;
+}
+.r5 {
+  background: rgba(196,196,196,1);
+  width: 213px;
+  height: 30px;
+}
+.r6 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Bold;
+  font-size: 30px;
+  opacity: 1;
+}
+
+.r8 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 35px;
+  opacity: 1;
+}
+.r9 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 25px;
+  opacity: 1;
+}
+.r10 {
+  background: rgba(196,196,196,1);
+  width: 213px;
+  height: 30px;
+}
+.r11 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 25px;
+  opacity: 1;
+}
+.r12 {
+  background: rgba(196,196,196,1);
+  width: 213px;
+  height: 30px;
+}
+.r13 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 25px;
+  opacity: 1;
+}
+.r14 {
+  background: rgba(196,196,196,1);
+  width: 213px;
+  height: 30px;
+}
+.r15 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Bold;
+  font-size: 30px;
+  opacity: 1;
+}
+
