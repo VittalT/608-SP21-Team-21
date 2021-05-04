@@ -5,8 +5,8 @@ const makeroom = (roomnum) => {
     newroom.classList.add("roombox");
     newroom.classList.add("roombox");
     // newroom.innerText = `Test room number ${roomnum} \\`;
-    newroom.innerHTML = "<div>" + `Test room number ${roomnum} \r\n` +
-			`Capacity: 10/10 \r\n` + 
+    newroom.innerHTML = "<div>" + `Test room number ${roomnum.rn} \r\n` +
+			`Capacity: ${roomnum.Capacity}/${roomnum.Capacity} \r\n` + 
 			`Current noise level: Quiet \r\n` +
 			`Volume Preferences: Quiet \r\n` + "</div>" +
                         `<button class="checkin"
