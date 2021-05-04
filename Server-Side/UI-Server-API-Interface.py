@@ -1,5 +1,3 @@
-from users_and_rooms.py import send_request
-
 # WEEK 2 Deliverable - request handler
 
 def request_handler(request):
@@ -7,109 +5,82 @@ def request_handler(request):
 	Function executes get and post requests by interfacing with other functions that have been written.
 	Checks that the inputs provided are valid, and, if they are, returns the correct outputs
 	GET requests to get rooms, friend data or preferences
-	POST request to pref, checkin, login, addfriend, requestfriend, delfriend
-	GET rooms: provide login (logged in status), user
+	POST request to pref, checkin, login, addfriend, requestfriend, removefriend
+
+	GET rooms: provide all rooms, capacities, num_occupied, #TODO: checkin option
 	GET pref: provide user
 	GET friends: provide user
-	POST pref: provide user, noiselvl
-	POST checkin: provide user, room, (opt) noiselvl
-	POST login: to be figured out using google - will be integrated and updated later
-	POST addfriend: provide user, friend
+	#TODO: GET login: to be figured out using google - will be integrated and updated later
+
+	POST pref: provide user, noise
 	POST requestfriend: provide user, friend
-	POST delfriend: provide user, friend
+	POST acceptfriend: provide user, friend
+	POST removefriend: provide user, friend
+	#TODO: POST checkin: provide user, room, (opt) noise
+	#TODO: POST login: to be figured out using google - will be integrated and updated later
 	'''
-	if request["method"] == "GET":
-		if request["values"]["task"]=="rooms":
-			#TODO pending Riccardo's code
-			pass
-		elif request["values"]["task"] == "pref":
-			try:
-				return get_account(request["values"]["user"])
-			except:
-				return "Invalid user"
-		elif request["values"]["task"] == "friends":
-			try:
-				get_account(request["values"]["user"]) #TODO change this to correct code when the friends database and surrounding functionality is complete
-				return "Code to be called not yet complete. Input valid."
-			except:
-				return "Invalid user"
-			
+	try:
+		if request["method"] == "GET":
+			if request["values"]["task"]=="rooms":
+				all_rooms = get_all_data()
+				for room in all_rooms:
+					room['num_occupants'] = len(room['occupants'])
+					del room['occupants']
+				return all_rooms
 
-	if request["method"] == "POST":
-		if request["form"]["task"] == "pref":
-			try:
-				if request["form"]["noiselvl"] == "quiet":
-					try:
-						update_noise_pref(request["form"]["user"], Noise.quiet)
-					except:
-						return "Invalid user"
-				elif request["form"]["noiselvl"] == "loud":
-					try:
-						update_noise_pref(request["form"]["user"], Noise.loud)
-					except:
-						return "Invalid user"
-				else:
-					return "Invalid noise level"
-			except:
-				return "Invalid input"
-			return get_account(request["form"]["user"])
-		if request["form"]["task"] == "checkin":
-			try:
-				get_account(request["form"]["user"]) #TODO change this to correct code when rooms data base is accessible
+			elif request["values"]["task"] == "pref":
+				name = request["values"]["user"]
+				return get_user(name)
+
+			elif request["values"]["task"] == "friends":
+				name = request["values"]["user"]
+				return get_friends(name)
+
+			elif request["values"]["task"] == "login": #TODO
+				name = request["values"]["user"]
+				return "Code to be called not yet complete. Input valid."
+
+
+		elif request["method"] == "POST":
+			if request["form"]["task"] == "pref":
+				name = request["values"]["user"]
+				noise_pref = str_to_enum(request["form"]["noise"])
+				return update_noise_pref(name, noise_pref)
+
+			elif request["form"]["task"] == "requestfriend":
+				sender = request["form"]["user"]
+				recipient = request["form"]["friend"]
+				return send_request(sender, recipient)
+
+			elif request["form"]["task"] == "acceptfriend":
+				sender = request["form"]["user"]
+				recipient = request["form"]["friend"]
+				return accept_request(sender, recipient)
+
+			elif request["form"]["task"] == "removefriend":
+				sender = request["form"]["user"]
+				recipient = request["form"]["friend"]
+				return remove_friend(sender, recipient)
+
+			elif request["form"]["task"] == "checkin": #TODO
+				name = request["form"]["user"]
 				# Check if room is in the database TODO
-				# If noiselvl is invalid, ignore it
-				noise = 0; # 0 is no pref, 1 is quiet, 2 is loud
-				if request["form"]["noiselvl"] == "quiet":
-					noise = 1
-				elif request["form"]["noiselvl"] == "loud":
-					noise = 2
+				# If noise is invalid, ignore it
 				return "Code to be called not yet complete. Input valid."
-			except:
-				return "Invalid user"
-		if request["form"]["task"] == "login":
-			try:
-				get_account(request["form"]["user"]) #TODO change this to correct code when login figured out
-				return "Code to be called not yet complete. Input valid."
-			except:
-				return "Invalid user"
-		if request["form"]["task"] == "addfriend":
-			try:
-				get_account(request["form"]["user"]) #TODO change this to correct code when the friends database and surrounding functionality is complete
-				get_account(request["form"]["friend"])
-				return "Code to be called not yet complete. Input valid."
-			except:
-				return "Invalid user"
-		if request["form"]["task"] == "requestfriend":
-			try:
-				get_account(request["form"]["user"]) #TODO change this to correct code when the friends database and surrounding functionality is complete
-				get_account(request["form"]["friend"])
-				return "Code to be called not yet complete. Input valid."
-			except:
-				return "Invalid user"
-		if request["form"]["task"] == "delfriend":
-			try:
-				get_account(request["form"]["user"]) #TODO change this to correct code when the friends database and surrounding functionality is complete
-				get_account(request["form"]["friend"])
-				return "Code to be called not yet complete. Input valid."
-			except:
-				return "Invalid user"
 
-# def getrooms(request):
-# 	'''
-# 	Returns a dictionary of the rooms, their current/max occupancy, noise levels, etc. (all the data we store about the room)
-# 	'''
-# 	pass
-
-# def getfriends(request):
-
+			elif request["form"]["task"] == "login": #TODO
+				User = get_user(request["form"]["user"])
+				return "Code to be called not yet complete. Input valid."
+	except Exception as e:
+		return e
 
 if __name__ == '__main__':
 	me = User('Vittal', {'noise' : Noise.loud})
-	create_account(me)
+	me.upload()
 	print (request_handler({"method":"GET", "values":{"user":"Vittal", "task":"pref"}}))
 	print (request_handler({"method":"GET", "values":{"user":"Vittal", "task":"friends"}}))
 	print (request_handler({"method":"GET", "values":{"user":"Vittal", "task":"rooms"}})) #TODO
 
-	print (request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noiselvl":"quiet"}}))
-	print (request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noiselvl":"happy"}}))
+	print (request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noise":"quiet"}}))
+	print (request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noise":"happy"}}))
 

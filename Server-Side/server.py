@@ -17,18 +17,27 @@ class Noise(Enum):
     moderate = 2
     loud = 3
 
-    def str_form(type):
-        if type == Noise.no_pref:
+    def str_form(self):
+        if self == Noise.no_pref:
             return 'has no noise preference'
-        elif type == Noise.quiet:
+        elif self == Noise.quiet:
             return 'prefers quiet noise levels'
-        elif type == Noise.moderate:
+        elif self == Noise.moderate:
             return 'prefers moderate noise levels'
-        elif type == Noise.loud:
+        elif self == Noise.loud:
             return 'prefers loud noise levels'
         else:
             return 'has an unknown preference'
 
+def str_to_enum(noise):
+    if noise == 'no_pref':
+        return Noise.no_pref
+    elif noise == 'quiet':
+        return Noise.quiet
+    elif noise == 'moderate':
+        return Noise.moderate
+    elif noise == 'loud':
+        return Noise.loud
 ###############
 # USER SYSTEM #
 ###############
@@ -216,12 +225,12 @@ def update_rooms(rooms=None):
             except:
                 continue
     with sqlite3.connect(database) as c:
-            c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int);''')
-            for room in rooms:
-                try:
-                    c.execute('''INSERT INTO rooms VALUES (?, ?);''', (room, rooms[room]))
-                except sqlite3.IntegrityError:
-                    c.execute('''UPDATE rooms SET capacity=? WHERE name=?;''', (rooms[room], room))
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int);''')
+        for room in rooms:
+            try:
+                c.execute('''INSERT INTO rooms VALUES (?, ?);''', (room, rooms[room]))
+            except sqlite3.IntegrityError:
+                c.execute('''UPDATE rooms SET capacity=? WHERE name=?;''', (rooms[room], room))
 
 def add_occupant(room, occupant=User()):
     """
@@ -254,6 +263,13 @@ def get_data(room):
         "capacity" : capacity,
         "occupants" : [occupant[0] for occupant in occupants]
     }
+
+def get_all_data():
+    with sqlite3.connect(database) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int);''')
+        rooms = c.execute('''SELECT name from rooms''').fetchall()
+        rooms = [room[0] for room in rooms]
+        return [get_data(room) for room in rooms]
         
 ##################
 # FRIENDS SYSTEM #
@@ -290,7 +306,7 @@ def accept_request(user, sender):
         except TypeError:
             raise KeyError(f"No friend request from {sender} exists")
 
-def get_friends(user):
+def get_friends(name):
     """
     Returns a dictionary containing all friends
     and friend requests, along with status. Raises
@@ -299,14 +315,91 @@ def get_friends(user):
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
-        if not c.execute('''SELECT u FROM users WHERE name=?;''', (user,)).fetchone():
-            raise KeyError(f"{user} is not a valid user")
+        if not c.execute('''SELECT u FROM users WHERE name=?;''', (name,)).fetchone():
+            raise KeyError(f"{name} is not a valid user")
         sent = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users WHERE friends.sender=? AND users.name=friends.recipient;''', (user,)).fetchall()
         received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users WHERE friends.recipient=? AND users.name=friends.sender;''', (user,)).fetchall()
         friends = sent + received
         return {friend[0] : friend[1] for friend in friends}
 
+# WEEK 2 Deliverable - request handler
+
+def request_handler(request):
+	'''
+	Function executes get and post requests by interfacing with other functions that have been written.
+	Checks that the inputs provided are valid, and, if they are, returns the correct outputs
+	GET requests to get rooms, friend data or preferences
+	POST request to pref, checkin, login, addfriend, requestfriend, removefriend
+
+	GET rooms: provide all rooms, capacities, num_occupied, #TODO: checkin option
+	GET pref: provide user
+	GET friends: provide user
+	#TODO: GET login: to be figured out using google - will be integrated and updated later
+
+	POST pref: provide user, noise
+	POST requestfriend: provide user, friend
+	POST acceptfriend: provide user, friend
+	POST removefriend: provide user, friend
+	#TODO: POST checkin: provide user, room, (opt) noise
+	#TODO: POST login: to be figured out using google - will be integrated and updated later
+	'''
+	try:
+		if request["method"] == "GET":
+			if request["values"]["task"]=="rooms":
+				all_rooms = get_all_data()
+				for room in all_rooms:
+					room['num_occupants'] = len(room['occupants'])
+					del room['occupants']
+				return all_rooms
+
+			elif request["values"]["task"] == "pref":
+				name = request["values"]["user"]
+				return get_user(name)
+
+			elif request["values"]["task"] == "friends":
+				name = request["values"]["user"]
+				return get_friends(name)
+
+			elif request["values"]["task"] == "login": #TODO
+				name = request["values"]["user"]
+				return "Code to be called not yet complete. Input valid."
+
+
+		elif request["method"] == "POST":
+			if request["form"]["task"] == "pref":
+				name = request["values"]["user"]
+				noise_pref = str_to_enum(request["form"]["noise"])
+				return update_noise_pref(name, noise_pref)
+
+			elif request["form"]["task"] == "requestfriend":
+				sender = request["form"]["user"]
+				recipient = request["form"]["friend"]
+				return send_request(sender, recipient)
+
+			elif request["form"]["task"] == "acceptfriend":
+				sender = request["form"]["user"]
+				recipient = request["form"]["friend"]
+				return accept_request(sender, recipient)
+
+			elif request["form"]["task"] == "removefriend":
+				sender = request["form"]["user"]
+				recipient = request["form"]["friend"]
+				return remove_friend(sender, recipient)
+
+			elif request["form"]["task"] == "checkin": #TODO
+				name = request["form"]["user"]
+				# Check if room is in the database TODO
+				# If noise is invalid, ignore it
+				return "Code to be called not yet complete. Input valid."
+
+			elif request["form"]["task"] == "login": #TODO
+				User = get_user(request["form"]["user"])
+				return "Code to be called not yet complete. Input valid."
+	except Exception as e:
+		return e
+
 if __name__ == '__main__':
+    print("\n\nWeek 1")
     me = User('Vittal', {'noise': Noise.loud})
     print(repr(me))
     print(me)
@@ -335,3 +428,11 @@ if __name__ == '__main__':
     except Exception as e:
         print(e)
     print(get_all_users())
+
+    print("\n\nWeek 2")
+    print(request_handler({"method":"GET", "values":{"user":"Vittal", "task":"pref"}}))
+    print(request_handler({"method":"GET", "values":{"user":"Vittal", "task":"friends"}}))
+    print(request_handler({"method":"GET", "values":{"user":"Vittal", "task":"rooms"}}))
+    print(request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noise":"quiet"}}))
+    print(request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noise":"happy"}}))
+
