@@ -135,3 +135,7 @@ text-align: center;
 color: #000000;
 background: #AAFFAA;
 }
+
+div {
+    white-space: pre;
+}
