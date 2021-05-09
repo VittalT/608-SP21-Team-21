@@ -43,7 +43,6 @@ def str_to_enum(noise):
 ###############
 
 class User:
-
     def __init__(self, name="anonymous", preferences=None):
         """
         Constructor for User object. Will create a new binding between
@@ -92,7 +91,7 @@ class User:
 
     def get_noise_pref(self):
         return self.preferences['noise']
-    
+
     @preferences.setter
     def preferences(self, value):
         """
@@ -117,7 +116,7 @@ class User:
         sqlite3.register_adapter(User, User.adapt_user)
         with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
             c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
-            if not user_created(c, self.name):
+            if not user_created(self.name, c):
                 c.execute('''INSERT INTO users VALUES (?, ?);''', (self.name, self))
                 return f'Account {self.name} created.'
             else:
@@ -137,7 +136,7 @@ class User:
         """
         if protocol is sqlite3.PrepareProtocol:
             return self.name
-    
+
     def convert_user(s):
         """
         Converts a bytes response from an SQL table into
@@ -152,12 +151,12 @@ class User:
         Returns True if a user is in the database, raises
         KeyError otherwise
         """
-        if c.execute('''SELECT u FROM users WHERE name=?;''', (name,)).fetchall() == []:
+        if not user_created(name, c):
             raise KeyError(f"{name} is not a valid user")
         return True
 
 
-def user_created(c, name):
+def user_created(name, c):
     return c.execute('''SELECT EXISTS (SELECT 1 FROM users WHERE name = ?);''', (name,)).fetchone()[0]
 
 def get_user(name):
@@ -167,10 +166,8 @@ def get_user(name):
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        if user_created(c, name):
-            return c.execute('''SELECT u FROM users WHERE name = ?''', (name,)).fetchone()[0]
-        else:
-            raise KeyError(f'User {name} does not exist')
+        User.validate(name, c)
+        return c.execute('''SELECT u FROM users WHERE name = ?''', (name,)).fetchone()[0]
 
 def get_all_users():
     """
@@ -189,14 +186,14 @@ def update_users(user):
     """
     sqlite3.register_adapter(User, User.adapt_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        if user_created(c, user.name):
+        if user_created(user.name, c):
             c.execute('''UPDATE users SET u = ? WHERE name = ?;''', (user, user.name))
             return f'User {user.name} updated.'
         else:
             raise KeyError(f'User {user.name} does not exist!')
 
 def update_preferences(name, prefs):
-    update_users(User(name, prefs))
+    return update_users(User(name, prefs))
 
 def update_noise_pref(name, noise_pref):
     return update_preferences(name, {'noise': noise_pref})
@@ -234,7 +231,7 @@ def update_rooms(rooms=None):
 
 def add_occupant(room, occupant=User()):
     """
-    Adds an occupant to a room. Raises a TypeError if occupant 
+    Adds an occupant to a room. Raises a TypeError if occupant
     is not a User object and a KeyError if room does not exist
     """
     if not isinstance(occupant, User):
@@ -244,7 +241,7 @@ def add_occupant(room, occupant=User()):
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
         c.execute('''INSERT INTO occupants VALUES (?, ?, ?);''', (occupant, room, datetime.datetime.now()))
 
-def user_in_rooms(c, name):
+def user_in_rooms(name, c):
     return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
 
 def get_data(room):
@@ -254,9 +251,11 @@ def get_data(room):
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        capacity = c.execute('''SELECT capacity FROM rooms WHERE name=?;''', (room,)).fetchone()
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int);''')
+        capacity = c.execute('''SELECT capacity FROM rooms WHERE name=?;''', (room,)).fetchone()[0]
         if capacity == None:
             raise KeyError(f"{room} is not a valid room")
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
         occupants = c.execute('''SELECT users.u FROM occupants INNER JOIN users ON occupants.user = users.name WHERE occupants.room = ?;''', (room,)).fetchall()
     return {
         "room" : room,
@@ -270,15 +269,15 @@ def get_all_data():
         rooms = c.execute('''SELECT name from rooms''').fetchall()
         rooms = [room[0] for room in rooms]
         return [get_data(room) for room in rooms]
-        
+
 ##################
 # FRIENDS SYSTEM #
 ##################
 
 def send_request(sender, recipient):
     """
-    Sends a friend request from the sender user to the 
-    recipient user. Raises a KeyError if either user 
+    Sends a friend request from the sender user to the
+    recipient user. Raises a KeyError if either user
     does not exist and AssertionError if relationship
     is already in database
     """
@@ -287,7 +286,7 @@ def send_request(sender, recipient):
         User.validate(sender, c)
         User.validate(recipient, c)
         # raices exception if friendship already exists
-        if recipient in get_friends(sender):
+        if recipient in get_friend_requests(sender):
             raise AssertionError(f"Already contacted {recipient}")
         c.execute('''INSERT INTO friends VALUES (?, ?, ?);''', (sender, recipient, "pending"))
 
@@ -306,6 +305,34 @@ def accept_request(user, sender):
         except TypeError:
             raise KeyError(f"No friend request from {sender} exists")
 
+def remove_friend(user, friend):
+    """
+    Accepts a friend request from a given user
+    """
+    with sqlite3.connect(database) as c:
+        User.validate(user, c)
+        User.validate(friend, c)
+        if friend in get_friends(user):
+            c.execute('''DELETE FROM friends WHERE (sender=? AND recipient=?) OR (sender=? and recipient=?);''', (user, friend, friend, user))
+        else:
+            raise KeyError(f"Not friends with {friend}")
+
+def get_friend_requests(name):
+    """
+    Returns a dictionary containing all friends
+    and friend requests, along with status. Raises
+    a KeyError if user does not exist
+    """
+    sqlite3.register_converter("user", User.convert_user)
+    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
+        User.validate(name, c)
+        #sent = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.recipient=users.name WHERE friends.sender=?;''', (name,)).fetchall()
+        #received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.sender=users.name WHERE friends.recipient=?;''', (name,)).fetchall()
+        sent = c.execute('''SELECT friends.recipient, friends.status FROM friends WHERE friends.sender=?;''', (name,)).fetchall()
+        received = c.execute('''SELECT friends.sender, friends.status FROM friends WHERE friends.recipient=?;''', (name,)).fetchall()
+        return f'Sent: { {friend[0] : friend[1] for friend in sent} }\nReceived: { {friend[0] : friend[1] for friend in received} }'
+
 def get_friends(name):
     """
     Returns a dictionary containing all friends
@@ -315,17 +342,19 @@ def get_friends(name):
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
-        if not c.execute('''SELECT u FROM users WHERE name=?;''', (name,)).fetchone():
-            raise KeyError(f"{name} is not a valid user")
-        sent = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users WHERE friends.sender=? AND users.name=friends.recipient;''', (user,)).fetchall()
-        received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users WHERE friends.recipient=? AND users.name=friends.sender;''', (user,)).fetchall()
-        friends = sent + received
-        return {friend[0] : friend[1] for friend in friends}
+        User.validate(name, c)
+        #sent = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.recipient=users.name WHERE friends.sender=?;''', (name,)).fetchall()
+        #received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.sender=users.name WHERE friends.recipient=?;''', (name,)).fetchall()
+        sent = c.execute('''SELECT friends.recipient FROM friends WHERE friends.sender=? AND friends.status = ?;''', (name, "accepted")).fetchall()
+        received = c.execute('''SELECT friends.sender FROM friends WHERE friends.recipient=? AND friends.status = ?;''', (name, "accepted")).fetchall()
+        friends = set(sent + received)
+        return [friend[0] for friend in friends]
 
 # WEEK 2 Deliverable - request handler
 
+
 def request_handler(request):
-	'''
+    '''
 	Function executes get and post requests by interfacing with other functions that have been written.
 	Checks that the inputs provided are valid, and, if they are, returns the correct outputs
 	GET requests to get rooms, friend data or preferences
@@ -334,69 +363,78 @@ def request_handler(request):
 	GET rooms: provide all rooms, capacities, num_occupied, #TODO: checkin option
 	GET pref: provide user
 	GET friends: provide user
+	GET friend_requests: provide user
 	#TODO: GET login: to be figured out using google - will be integrated and updated later
 
 	POST pref: provide user, noise
-	POST requestfriend: provide user, friend
-	POST acceptfriend: provide user, friend
-	POST removefriend: provide user, friend
+	POST request_friend: provide user, friend
+	POST accept_friend: provide user, friend
+	POST remove_friend: provide user, friend
 	#TODO: POST checkin: provide user, room, (opt) noise
 	#TODO: POST login: to be figured out using google - will be integrated and updated later
 	'''
-	try:
-		if request["method"] == "GET":
-			if request["values"]["task"]=="rooms":
-				all_rooms = get_all_data()
-				for room in all_rooms:
-					room['num_occupants'] = len(room['occupants'])
-					del room['occupants']
-				return all_rooms
 
-			elif request["values"]["task"] == "pref":
-				name = request["values"]["user"]
-				return get_user(name)
+    try:
+        if request["method"] == "GET":
+            if request["values"]["task"]=="rooms":
+                all_rooms = get_all_data()
+                for room in all_rooms:
+                    room['num_occupants'] = len(room['occupants'])
+                    del room['occupants']
+                return all_rooms
 
-			elif request["values"]["task"] == "friends":
-				name = request["values"]["user"]
-				return get_friends(name)
+            elif request["values"]["task"] == "pref":
+                name = request["values"]["user"]
+                return get_user(name)
 
-			elif request["values"]["task"] == "login": #TODO
-				name = request["values"]["user"]
-				return "Code to be called not yet complete. Input valid."
+            elif request["values"]["task"] == "friend_requests":
+                name = request["values"]["user"]
+                return get_friend_requests(name)
+
+            elif request["values"]["task"] == "friends":
+                name = request["values"]["user"]
+                return get_friends(name)
 
 
-		elif request["method"] == "POST":
-			if request["form"]["task"] == "pref":
-				name = request["values"]["user"]
-				noise_pref = str_to_enum(request["form"]["noise"])
-				return update_noise_pref(name, noise_pref)
+        elif request["method"] == "POST":
+            if request["form"]["task"] == "create_account":
+                name = request["values"]["user"]
+                noise_pref = str_to_enum(request["form"]["noise"])
+                #user = User(name, {'noise': noise_pref})
+                user.upload()
 
-			elif request["form"]["task"] == "requestfriend":
-				sender = request["form"]["user"]
-				recipient = request["form"]["friend"]
-				return send_request(sender, recipient)
+            elif request["form"]["task"] == "pref":
+                name = request["form"]["user"]
+                noise_pref = str_to_enum(request["form"]["noise"])
+                return update_noise_pref(name, noise_pref)
 
-			elif request["form"]["task"] == "acceptfriend":
-				sender = request["form"]["user"]
-				recipient = request["form"]["friend"]
-				return accept_request(sender, recipient)
+            elif request["form"]["task"] == "request_friend":
+                sender = request["form"]["user"]
+                recipient = request["form"]["friend"]
+                return send_request(sender, recipient)
 
-			elif request["form"]["task"] == "removefriend":
-				sender = request["form"]["user"]
-				recipient = request["form"]["friend"]
-				return remove_friend(sender, recipient)
+            elif request["form"]["task"] == "accept_friend":
+                sender = request["form"]["user"]
+                recipient = request["form"]["friend"]
+                return accept_request(sender, recipient)
 
-			elif request["form"]["task"] == "checkin": #TODO
-				name = request["form"]["user"]
-				# Check if room is in the database TODO
-				# If noise is invalid, ignore it
-				return "Code to be called not yet complete. Input valid."
+            elif request["form"]["task"] == "remove_friend":
+                sender = request["form"]["user"]
+                recipient = request["form"]["friend"]
+                return remove_friend(sender, recipient)
 
-			elif request["form"]["task"] == "login": #TODO
-				User = get_user(request["form"]["user"])
-				return "Code to be called not yet complete. Input valid."
-	except Exception as e:
-		return e
+            elif request["form"]["task"] == "checkin":
+                name = request["form"]["user"]
+                user = get_user(name)
+                room = request["form"]["room"]
+                print(user, room)
+                return add_occupant(room, user)
+
+            elif request["form"]["task"] == "login": #TODO
+                User = get_user(request["form"]["user"])
+                return "Code to be called not yet complete. Input valid."
+    except Exception as e:
+        return e
 
 if __name__ == '__main__':
     print("\n\nWeek 1")
@@ -430,9 +468,31 @@ if __name__ == '__main__':
     print(get_all_users())
 
     print("\n\nWeek 2")
-    print(request_handler({"method":"GET", "values":{"user":"Vittal", "task":"pref"}}))
-    print(request_handler({"method":"GET", "values":{"user":"Vittal", "task":"friends"}}))
-    print(request_handler({"method":"GET", "values":{"user":"Vittal", "task":"rooms"}}))
+    update_rooms()
+
+    print(request_handler({"method":"GET", "values":{"task":"rooms"}}))
     print(request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noise":"quiet"}}))
-    print(request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noise":"happy"}}))
+    print(request_handler({"method": "GET", "values": {"user": "Vittal", "task": "pref"}}))
+    print(request_handler({"method":"POST", "form":{"user":"Vittal", "task":"pref", "noise":"moderate"}}))
+    print(request_handler({"method": "GET", "values": {"user": "Vittal", "task": "pref"}}))
+    print()
+
+    print(request_handler({"method": "GET", "values": {"user": "Vittal", "task": "pref"}}))
+    print(request_handler({"method": "GET", "values": {"user": "Vittal", "task": "friends"}}))
+    print()
+
+    requests = [
+        {"method": "POST", "form": {"user": "Vittal", "friend": "Ricardo", "task": "request_friend"}},
+        {"method": "POST", "form": {"user": "Ricardo", "friend": "Vittal", "task": "accept_friend"}},
+        {"method": "POST", "form": {"user": "Ricardo", "friend": "Vittal", "task": "remove_friend"}}
+    ]
+
+    for request in requests:
+        print(request)
+        print(request_handler(request))
+        for user in ['Vittal', 'Ricardo']:
+            for task in ['friends', 'friend_requests']:
+                print(user, task)
+                print(request_handler({"method": "GET", "values": {"user": user, "task": task}}))
+        print()
 
