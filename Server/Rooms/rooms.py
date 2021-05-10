@@ -1,11 +1,13 @@
+import sys
+# sys.path.append('.')
+
 import requests
-import sqlite3
 import datetime
 from bs4 import BeautifulSoup
-from users import *
 
-database = "database.db"
+from ..Users.users import *
 
+database = './database.db'
 
 def update_rooms(rooms=None):
     """

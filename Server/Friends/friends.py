@@ -1,8 +1,9 @@
-import sqlite3
-from users import *
+import sys
+#sys.path.append('.')
 
-database = "database.db"
+from ..Users.users import *
 
+database = './database.db'
 
 def send_request(sender, recipient):
     """

@@ -1,5 +1,6 @@
 from enum import Enum
-
+import sys
+print(sys.path)
 
 class Noise(Enum):
     no_pref = 0

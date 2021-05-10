@@ -1,9 +1,10 @@
-from users import *
-from rooms import *
-from friends import *
+import sys
+print(sys.path)
 
-# change this
-database = "database.db"
+from ..Rooms.rooms import *
+from ..Friends.friends import *
+
+database = './database.db'
 
 def request_handler(request):
     '''

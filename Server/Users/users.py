@@ -1,7 +1,11 @@
-import sqlite3
-from noise import *
+import sys
+# sys.path.append('.')
 
-database = "database.db"
+import sqlite3
+
+from ..Preferences.noise import *
+
+database = './database.db'
 
 
 class User:
