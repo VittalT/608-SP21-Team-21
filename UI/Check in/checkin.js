@@ -8,7 +8,7 @@ const login = (roomno, hoursstay, noise) => {
 	};
 	dataType='JSON';
     HTTP.open("POST", url);
-	HTTP.setRequestHeader("Content-type", "application/json")
+	HTTP.setRequestHeader("Content-type", "application/json");
     HTTP.send(data);
     HTTP.onreadystatechange = function(){
         if(this.readyState == 4 && this.status==200) {
