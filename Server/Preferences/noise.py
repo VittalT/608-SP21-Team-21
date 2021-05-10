@@ -1,6 +1,10 @@
 from enum import Enum
-import sys
-print(sys.path)
+
+import sys, os
+# print(os.path.dirname(os.path.abspath('')))
+
+def request_handler(request):
+    return os.path.dirname(os.path.abspath(os.getcwd()))
 
 class Noise(Enum):
     no_pref = 0
