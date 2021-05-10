@@ -50,6 +50,11 @@ def request_handler(request):
                     del room['occupants']
                 return all_rooms
 
+            elif request["values"]["task"] == "loginpage":
+                with open("../UI/Login/body.html") as f:
+                    body = f.read()
+                    return body
+
             else:
                 return KeyError("Unknown POST request")
 
