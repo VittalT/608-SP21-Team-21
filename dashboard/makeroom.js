@@ -12,6 +12,7 @@ const makeroom = (roomnum) => {
                         `<button class="checkin"
                             type="button"
                             value="Check In"
+                            onclick="checkin()"
                         > Check In </button>`
     dashBoard.appendChild(newroom);
 }
