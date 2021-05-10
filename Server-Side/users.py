@@ -127,6 +127,7 @@ class User:
         """
         sqlite3.register_converter("user", User.convert_user)
         with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
             User.validate(name, c)
             return c.execute('''SELECT u FROM users WHERE name = ?''', (name,)).fetchone()[0]
 

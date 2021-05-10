@@ -66,7 +66,9 @@ def get_friend_requests(name):
         # received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.sender=users.name WHERE friends.recipient=?;''', (name,)).fetchall()
         sent = c.execute('''SELECT friends.recipient, friends.status FROM friends WHERE friends.sender=?;''', (name,)).fetchall()
         received = c.execute('''SELECT friends.sender, friends.status FROM friends WHERE friends.recipient=?;''', (name,)).fetchall()
-        return f'Sent: { {friend[0] : friend[1] for friend in sent} }\nReceived: { {friend[0] : friend[1] for friend in received} }'
+        all_requests = {'Sent': {friend[0] : friend[1] for friend in sent},
+                        'Received': {friend[0] : friend[1] for friend in received}}
+        return all_requests
 
 
 def get_friends(name):
@@ -83,5 +85,5 @@ def get_friends(name):
         # received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.sender=users.name WHERE friends.recipient=?;''', (name,)).fetchall()
         sent = c.execute('''SELECT friends.recipient FROM friends WHERE friends.sender=? AND friends.status = ?;''', (name, "accepted")).fetchall()
         received = c.execute('''SELECT friends.sender FROM friends WHERE friends.recipient=? AND friends.status = ?;''', (name, "accepted")).fetchall()
-        friends = set(sent + received)
-        return [friend[0] for friend in friends]
+        friends = [friend[0] for friend in set(sent + received)]
+        return friends

@@ -35,18 +35,26 @@ def update_rooms(rooms=None):
                 c.execute('''UPDATE rooms SET capacity=? WHERE name=?;''', (rooms[room], room))
 
 
-def add_occupant(room, occupant=User()):
+def add_occupant(name, room):
     """
     Adds an occupant to a room. Raises a TypeError if occupant
     is not a User object and a KeyError if room does not exist
     """
-    if not isinstance(occupant, User):
-        raise TypeError("Occupants must be User")
-    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        User.validate(occupant.name, c)
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
-        c.execute('''INSERT INTO occupants VALUES (?, ?, ?);''', (occupant, room, datetime.datetime.now()))
 
+    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        User.validate(name, c)
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
+        c.execute('''INSERT INTO occupants VALUES (?, ?, ?);''', (name, room, datetime.datetime.now()))
+
+def remove_occupant(name, room):
+    """
+    Adds an occupant to a room. Raises a TypeError if occupant
+    is not a User object and a KeyError if room does not exist
+    """
+    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        User.validate(name, c)
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
+        c.execute('''DELETE FROM occupants WHERE user = ? AND room = ?;''', (name, room))
 
 def user_in_rooms(name, c):
     return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
@@ -64,6 +72,8 @@ def get_data(room):
         if capacity is None:
             raise KeyError(f"{room} is not a valid room")
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
+        # print(f"Room {room}\n {c.execute('''SELECT * FROM occupants;''').fetchall()} \n")
         occupants = c.execute('''SELECT users.u FROM occupants INNER JOIN users ON occupants.user = users.name WHERE occupants.room = ?;''', (room,)).fetchall()
     return {
         "room": room,
