@@ -1,0 +1,57 @@
+<head>
+	<link href="https//fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" /><link href="main.css" rel="stylesheet" />
+	<title>Friends Dashboard</title>
+	<script src="fetchfriends.js" defer></script>
+</head>
+<body>
+	<p class="v5542">Friends</p>
+	<form action="/action_page.php">  <!-- change linking file -->
+	  <button class="r16" type="button" value="Back to Dashboard" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms'">Back to Dashboard</button>
+	  <!-- <button class="r16" type="button" value="Back to Dashboard" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms'">Back to Dashboard</button> -->
+	  <!-- fix location, link back to the main page -->
+	</form> 
+	<div class="v55_43">
+		<div class="v55_44"></div>
+		<span class="v55_45">Elaine</span>
+		<span class="v55_48">Checked in to room 5-223</span>
+	</div>
+	<div class="v55_43">
+		<div class="v55_44"></div>
+		<span class="v55_45">Eugeniya</span>
+		<span class="v55_48">Checked in to room 5-223</span>
+	</div>
+	<div id="dashboard"></div>
+	<p class="v561">Friend Requests</p>
+	<div class="v55_43">
+		<div class="v55_44"></div>
+		<span class="v55_45">Ricardo</span>
+		<span class="v55_48">Pending</span>
+	</div>
+	<div class="v55_43">
+		<div class="v55_44"></div>
+		<span class="v55_45">Albert</span>
+		<button class="r17" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Accept</button>
+		<button class="r18" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Decline</button>
+	</div>
+	<div class="v55_43">
+		<div class="v55_44"></div>
+		<span class="v55_45">Vittal</span>
+		<button class="r17" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Accept</button>
+		<button class="r18" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Decline</button>
+	</div>
+	
+	
+	<p class="v561">Find Friends</p>
+	<!-- <p class="v563">Add a friend</p>
+	<div class="v564"></div>
+	<div class="v575"></div>
+	<p class="v574">Submit</p> -->
+
+	<form action="/action_page.php">  <!-- change linking file -->
+	  <label class="r11" for="friend">Type in your friend's username:</label><br>
+	  <input class="r12" type="text" id="pword" name="pword" value=""><br><br>
+	  <button class="r15" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=addfriend" >Submit</button>
+	  <!-- fix location, link back to the main page -->
+	</form> 
+
+</body>

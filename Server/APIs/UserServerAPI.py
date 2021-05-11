@@ -37,7 +37,7 @@ def request_handler(request):
     try:
         if request["method"] == "GET":
             if request["values"]["task"] == "loginpage":
-                with open("../login/body.html") as f:
+                with open("../UI/Login/body.html") as f:
                     body = f.read()
                     return body
 
@@ -58,17 +58,8 @@ def request_handler(request):
                 for room in all_rooms:
                     room['occupancy'] = len(room['occupants'])
                     del room['occupants']
-<<<<<<< HEAD
                 return json.dumps(all_rooms)
-=======
-                return all_rooms
 
-            elif request["values"]["task"] == "loginpage":
-                with open("../UI/Login/body.html") as f:
-                    body = f.read()
-                    return body
-
->>>>>>> 3779833908ede28051dee19437a2a356e8cfea65
             else:
                 return KeyError("Unknown GET request")
 
