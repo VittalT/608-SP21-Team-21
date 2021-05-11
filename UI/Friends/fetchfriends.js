@@ -23,20 +23,7 @@ if (typeof makefriend === 'undefined') {
         }
     }
 
-    backtodashboard = () => {
-        const HTTP = new XMLHttpRequest();
-        const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=dashboardpage';
-        HTTP.open("GET", url);
-        HTTP.send();
-        HTTP.onreadystatechange = function(){
-            if(this.readyState == 4 && this.status==200) {
-                console.log(HTTP.responseText);
-                const doc = document.documentElement;
-                // doc.innerHTML = HTTP.responseText;
-                setInnerHTML(doc, HTTP.responseText)
-            }
-        }
-    }
+    
 
     mainfetchfriends = () => {
         fetchfriendlist();
