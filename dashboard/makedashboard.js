@@ -23,7 +23,7 @@
 
 const fetchroomlist = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=rooms';
     HTTP.open("GET", url);
     HTTP.send();
 
@@ -39,7 +39,6 @@ const fetchroomlist = () => {
 }
 
 const main = () => {
-    // checkin
     // for(let i = 1; i<=18; i++) {
     //     makeroom(list[i]);
     // }
