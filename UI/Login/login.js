@@ -10,7 +10,7 @@ const loginaccount = () => {
     console.log(data);
 	dataType='JSON';
     HTTP.open("POST", url);
-	HTTP.setRequestHeader("Content-type", "application/json")
+    HTTP.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
     HTTP.send(data);
     HTTP.onreadystatechange = function(){
         if(this.readyState == 4 && this.status==200) {
@@ -43,7 +43,7 @@ const createaccount = () => {
     console.log(data);
 	dataType='JSON';
     HTTP.open("POST", url);
-	HTTP.setRequestHeader("Content-type", "application/json")
+	HTTP.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
     HTTP.send(data);
     HTTP.onreadystatechange = function(){
         if(this.readyState == 4 && this.status==200) {
