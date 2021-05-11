@@ -2,7 +2,7 @@ const login = () => {
     let username = document.getElementById("u_name_login").value;
     let pass = document.getElementById("pword_login").value;
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=login';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=login';
 	const data={
 		user: username,
 		password: pass
@@ -35,7 +35,7 @@ const createaccount = () => {
 	else
 		pass = pass1
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server/UserServerAPI.py?task=createaccount';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=createaccount';
 	const data={
 		user: username,
 		password: pass

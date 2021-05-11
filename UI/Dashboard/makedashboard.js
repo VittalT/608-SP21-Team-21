@@ -22,7 +22,7 @@ var roomlist = [
 
 const fetchroomlist = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=rooms';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms';
     HTTP.open("GET", url);
     HTTP.send();
 
@@ -59,7 +59,7 @@ const makeloginbutton = () => {
 
 const login = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server/UserServerAPI.py?task=loginpage';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=loginpage';
     HTTP.open("GET", url);
     HTTP.send();
     HTTP.onreadystatechange = function(){
@@ -74,7 +74,7 @@ const login = () => {
 
 const friendspage = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server/UserServerAPI.py?task=friendspage';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=friendspage';
     HTTP.open("GET", url);
     HTTP.send();
     HTTP.onreadystatechange = function(){

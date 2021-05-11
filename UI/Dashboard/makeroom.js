@@ -29,7 +29,7 @@ const makeroom = (room) => {
 
 const checkin = (roomnum) => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=checkinpage';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkinpage';
     HTTP.open("GET", url);
     HTTP.send();
     HTTP.onreadystatechange = function(){
