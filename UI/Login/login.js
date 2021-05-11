@@ -1,12 +1,13 @@
 const login = () => {
-    let username = document.getElementById("u_name_login");
-    let pass = document.getElementById("pword_login");
+    let username = document.getElementById("u_name_login").value;
+    let pass = document.getElementById("pword_login").value;
     const HTTP = new XMLHttpRequest();
     const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=login';
 	const data={
 		user: username,
 		password: pass
-	};
+    };
+    console.log(data);
 	dataType='JSON';
     HTTP.open("POST", url);
 	HTTP.setRequestHeader("Content-type", "application/json")
@@ -25,9 +26,9 @@ const login = () => {
 }
 
 const createaccount = () => {
-    let username = document.getElementById("u_name_createacc");
-    let pass1 = document.getElementById("pword_createacc");
-    let pass2 = document.getElementById("rtpword_createacc");
+    let username = document.getElementById("u_name_createacc").value;
+    let pass1 = document.getElementById("pword_createacc").value;
+    let pass2 = document.getElementById("rtpword_createacc").value;
 	if (pass1 != pass2)
 		//Do something about it
 		pass = pass1 //For now
@@ -39,6 +40,7 @@ const createaccount = () => {
 		user: username,
 		password: pass
 	};
+    console.log(data);
 	dataType='JSON';
     HTTP.open("POST", url);
 	HTTP.setRequestHeader("Content-type", "application/json")
