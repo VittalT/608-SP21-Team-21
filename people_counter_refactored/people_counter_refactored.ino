@@ -61,7 +61,8 @@ static int LeftPreviousStatus = NOBODY;
 static int RightPreviousStatus = NOBODY;
 
 //TODO: CALIBRATION
-static int center[2] = {135,255}; /* center of the two zones */  
+static int center[2] = {87,87}; /* zone1, zone0: center of the two zones */  
+/* 87 */
 static int Zone = 0;
 static int old_PplCounter = 0;
 static int PplCounter = 0;
@@ -187,7 +188,7 @@ void getDistance(int current_zone)
   distanceSensor.stopRanging();
   Serial.print("Zone ");
   Serial.print(current_zone);
-  Serial.print("distance: ");
+  Serial.print(", distance: ");
   Serial.println(distance/10.00);
 }
 
