@@ -115,7 +115,10 @@ def request_handler(request):
             name = request["form"]["user"]
             room = request["form"]["roomnum"]
             print(name, room)
-            return add_occupant(name, room)
+            add_occupant(name, room)
+            with open("../UI/Dashboard/dashboard.html") as f:
+                body = f.read()
+                return body
 
         elif request["form"]["task"] == "checkout":
             update_rooms()
