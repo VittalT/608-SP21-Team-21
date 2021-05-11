@@ -1,3 +1,4 @@
+import json
 import sys, os
 # sys.path.append(os.path.abspath(__file__))
 os.chdir('/var/jail/home/team21/Server')
@@ -35,8 +36,10 @@ def request_handler(request):
 
     try:
         if request["method"] == "GET":
-            if request["values"]["task"] == "login":
-                pass # TODO
+            if request["values"]["task"] == "loginpage":
+                with open("../login/body.html") as f:
+                    body = f.read()
+                    return body
 
             elif request["values"]["task"] == "preferences":
                 name = request["values"]["user"]
@@ -46,15 +49,18 @@ def request_handler(request):
                 name = request["values"]["user"]
                 return get_friends(name)
 
-            elif request["values"]["task"] == "friend requests":
+            elif request["values"]["task"] == "friendrequests":
                 name = request["values"]["user"]
                 return get_friend_requests(name)
 
             elif request["values"]["task"] == "rooms":
                 all_rooms = get_all_data()
                 for room in all_rooms:
-                    room['num_occupants'] = len(room['occupants'])
+                    room['occupancy'] = len(room['occupants'])
                     del room['occupants']
+<<<<<<< HEAD
+                return json.dumps(all_rooms)
+=======
                 return all_rooms
 
             elif request["values"]["task"] == "loginpage":
@@ -62,12 +68,13 @@ def request_handler(request):
                     body = f.read()
                     return body
 
+>>>>>>> 3779833908ede28051dee19437a2a356e8cfea65
             else:
                 return KeyError("Unknown GET request")
 
 
         elif request["method"] == "POST":
-            if request["form"]["task"] == "create account":
+            if request["form"]["task"] == "createaccount":
                 name = request["form"]["user"]
                 noise_pref = Noise.str_to_enum(request["form"]["noise"])
                 user = User(name, {'noise': noise_pref})
@@ -81,17 +88,17 @@ def request_handler(request):
                 noise_pref = Noise.str_to_enum(request["form"]["noise"])
                 return User.update_noise_pref(name, noise_pref)
 
-            elif request["form"]["task"] == "request friend":
+            elif request["form"]["task"] == "requestfriend":
                 sender = request["form"]["user"]
                 recipient = request["form"]["friend"]
                 return send_request(sender, recipient)
 
-            elif request["form"]["task"] == "accept friend":
+            elif request["form"]["task"] == "acceptfriend":
                 sender = request["form"]["user"]
                 recipient = request["form"]["friend"]
                 return accept_request(sender, recipient)
 
-            elif request["form"]["task"] == "remove friend":
+            elif request["form"]["task"] == "removefriend":
                 sender = request["form"]["user"]
                 recipient = request["form"]["friend"]
                 return remove_friend(sender, recipient)
