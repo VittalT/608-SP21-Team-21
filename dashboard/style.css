@@ -135,3 +135,27 @@ text-align: center;
 color: #000000;
 background: #AAFFAA;
 }
+
+div {
+    white-space: pre;
+}
+
+.v5542 {
+  color: #333;
+  font-family: Roboto;
+  font-weight: Regular;
+  font-size: 50px;
+  opacity: 1;
+  text-align: center;
+}
+
+.r15 {
+  color: #333;
+  position: absolute;
+  top: 100px;
+  right: 20px;
+  font-family: Roboto;
+  font-weight: Bold;
+  font-size: 30px;
+  opacity: 1;
+}

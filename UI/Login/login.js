@@ -1,0 +1,50 @@
+const login = (username, pass) => {
+    const HTTP = new XMLHttpRequest();
+    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=login';
+	const data={
+		user: username,
+		password: pass
+	};
+	dataType='JSON';
+    HTTP.open("POST", url);
+	HTTP.setRequestHeader("Content-type", "application/json")
+    HTTP.send(data);
+    HTTP.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status==200) {
+            console.log(HTTP.responseText);
+            const body = document.body;
+            body.innerHTML = HTTP.responseText;
+            // TODO: below code to be implemented after the Check In page is created.
+            //roomnum = document.getElementById("roomnum")
+            //roomnum.innerText = roomnum
+        }
+    }
+}
+
+const login = (username, pass1, pass2) => {
+	if (pass1 != pass2)
+		//Do something about it
+		pass = pass1 //For now
+	else
+		pass = pass1
+    const HTTP = new XMLHttpRequest();
+    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=createacct';
+	const data={
+		user: username,
+		password: pass
+	};
+	dataType='JSON';
+    HTTP.open("POST", url);
+	HTTP.setRequestHeader("Content-type", "application/json")
+    HTTP.send(data);
+    HTTP.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status==200) {
+            console.log(HTTP.responseText);
+            const body = document.body;
+            body.innerHTML = HTTP.responseText;
+            // TODO: below code to be implemented after the Check In page is created.
+            //roomnum = document.getElementById("roomnum")
+            //roomnum.innerText = roomnum
+        }
+    }
+}
