@@ -21,14 +21,14 @@ def request_handler(request):
     #TODO: GET login: to be figured out using google - will be integrated and updated later
 	GET pref: provide user
 	GET friends: provide user
-	GET friend_requests: provide user
+	GET friend requests: provide user
 	GET rooms: provide all rooms, capacities, num_occupies, checkin, and checkout option
 
 	#TODO: POST login: to be figured out using google - will be integrated and updated later
 	POST pref: provide user, noise
-	POST request_friend: provide user, friend
-	POST accept_friend: provide user, friend
-	POST remove_friend: provide user, friend
+	POST request friend: provide user, friend
+	POST accept friend: provide user, friend
+	POST remove friend: provide user, friend
 	POST checkin: provide user, room
 	POST checkout: provide user, room
 	'''
