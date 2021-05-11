@@ -84,7 +84,7 @@ def get_data(room):
     return {
         "roomnum": room,
         "capacity": capacity,
-        "occupants": [occupant[0] for occupant in occupants]
+        "occupants": [occupant[0] for occupant in occupants],
         "noiselevel": "quiet",
         "volumepref": "quiet"
     }
