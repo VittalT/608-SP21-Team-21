@@ -1,6 +1,5 @@
-const dashBoard = document.getElementById("dashboard");
-
 const makeroom = (room) => {
+    const dashBoard = document.getElementById("dashboard");
     const newroom = document.createElement("div");
     newroom.classList.add("roombox");
     newroom.classList.add("roombox");
