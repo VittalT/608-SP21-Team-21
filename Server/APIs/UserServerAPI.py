@@ -113,14 +113,14 @@ def request_handler(request):
         elif request["form"]["task"] == "checkin":
             update_rooms()
             name = request["form"]["user"]
-            room = request["form"]["room"]
+            room = request["form"]["roomnum"]
             print(name, room)
             return add_occupant(name, room)
 
         elif request["form"]["task"] == "checkout":
             update_rooms()
             name = request["form"]["user"]
-            room = request["form"]["room"]
+            room = request["form"]["roomnum"]
             print(name, room)
             return remove_occupant(name, room)
 
