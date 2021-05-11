@@ -1,10 +1,13 @@
-const login = (username, pass) => {
+const login = () => {
+    let username = document.getElementById("u_name_login").value;
+    let pass = document.getElementById("pword_login").value;
     const HTTP = new XMLHttpRequest();
     const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=login';
 	const data={
 		user: username,
 		password: pass
-	};
+    };
+    console.log(data);
 	dataType='JSON';
     HTTP.open("POST", url);
 	HTTP.setRequestHeader("Content-type", "application/json")
@@ -12,8 +15,9 @@ const login = (username, pass) => {
     HTTP.onreadystatechange = function(){
         if(this.readyState == 4 && this.status==200) {
             console.log(HTTP.responseText);
-            const body = document.body;
-            body.innerHTML = HTTP.responseText;
+            const doc = document.documentElement;
+            // doc.innerHTML = HTTP.responseText;
+            setInnerHTML(doc, HTTP.responseText);
             // TODO: below code to be implemented after the Check In page is created.
             //roomnum = document.getElementById("roomnum")
             //roomnum.innerText = roomnum
@@ -21,18 +25,22 @@ const login = (username, pass) => {
     }
 }
 
-const login = (username, pass1, pass2) => {
+const createaccount = () => {
+    let username = document.getElementById("u_name_createacc").value;
+    let pass1 = document.getElementById("pword_createacc").value;
+    let pass2 = document.getElementById("rtpword_createacc").value;
 	if (pass1 != pass2)
 		//Do something about it
 		pass = pass1 //For now
 	else
 		pass = pass1
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=createacct';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/UserServerAPI.py?task=createaccount';
 	const data={
 		user: username,
 		password: pass
 	};
+    console.log(data);
 	dataType='JSON';
     HTTP.open("POST", url);
 	HTTP.setRequestHeader("Content-type", "application/json")
@@ -40,11 +48,23 @@ const login = (username, pass1, pass2) => {
     HTTP.onreadystatechange = function(){
         if(this.readyState == 4 && this.status==200) {
             console.log(HTTP.responseText);
-            const body = document.body;
-            body.innerHTML = HTTP.responseText;
+            const doc = document.documentElement;
+            // doc.innerHTML = HTTP.responseText;
+            setInnerHTML(doc, HTTP.responseText);
             // TODO: below code to be implemented after the Check In page is created.
             //roomnum = document.getElementById("roomnum")
             //roomnum.innerText = roomnum
         }
     }
 }
+
+var setInnerHTML = function(elm, html) {
+    elm.innerHTML = html;
+    Array.from(elm.querySelectorAll("script")).forEach( oldScript => {
+      const newScript = document.createElement("script");
+      Array.from(oldScript.attributes)
+        .forEach( attr => newScript.setAttribute(attr.name, attr.value) );
+      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+  }

@@ -7,7 +7,7 @@ const makefriend = (friendnum) => {
 }
 const fetchfriendlist = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=friends&user=%27Vittal%27';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=friendswithrooms&user=%27Vittal%27';
     HTTP.open("GET", url);
     HTTP.send();
 
