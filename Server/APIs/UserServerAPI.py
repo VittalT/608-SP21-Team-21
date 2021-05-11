@@ -1,9 +1,15 @@
-from users import *
-from rooms import *
-from friends import *
+import sys, os
+# sys.path.append(os.path.abspath(__file__))
+os.chdir('/var/jail/home/team21/Server')
+server_path = '/var/jail/home/team21/Server'
+sys.path.append(server_path)
+sys.path.append(server_path + '/Friends')
+sys.path.append(server_path + '/Rooms')
 
-# change this
-database = "database.db"
+from friends import *
+from rooms import *
+
+database = '../database.db'
 
 def request_handler(request):
     '''
@@ -26,6 +32,7 @@ def request_handler(request):
 	POST checkin: provide user, room
 	POST checkout: provide user, room
 	'''
+
     try:
         if request["method"] == "GET":
             if request["values"]["task"] == "login":
@@ -104,13 +111,14 @@ def request_handler(request):
             else:
                 return KeyError("Unknown POST request")
 
+
         else:
-            return KeyError("Not a GET/POST request")
+            return KeyError("Unknown POST request")
 
-    except Exception as e:
-        return e
+    else:
+        return KeyError("Not a GET/POST request")
 
-if __name__ == '__main__':
+if __name__ == '__main2__':
     # print("\n\nWeek 1")
     # me = User('Vittal', {'noise': Noise.loud})
     # print(me.upload())

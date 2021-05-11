@@ -1,8 +1,13 @@
-import sqlite3
-from users import *
+import sys, os
+# sys.path.append(os.path.abspath(__file__))
+os.chdir('/var/jail/home/team21/Server')
+server_path = '/var/jail/home/team21/Server'
+sys.path.append(server_path)
+sys.path.append(server_path + '/Accounts')
 
-database = "database.db"
+from accounts import *
 
+database = '../database.db'
 
 def send_request(sender, recipient):
     """

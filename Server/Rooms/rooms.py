@@ -1,11 +1,17 @@
+import sys, os
+# sys.path.append(os.path.abspath(__file__))
+os.chdir('/var/jail/home/team21/Server')
+server_path = '/var/jail/home/team21/Server'
+sys.path.append(server_path)
+sys.path.append(server_path + '/Accounts')
+
 import requests
-import sqlite3
 import datetime
 from bs4 import BeautifulSoup
-from users import *
 
-database = "database.db"
+from accounts import *
 
+database = '../database.db'
 
 def update_rooms(rooms=None):
     """

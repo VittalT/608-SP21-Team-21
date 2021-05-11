@@ -1,7 +1,14 @@
+import sys, os
+# sys.path.append(os.path.abspath(__file__))
+os.chdir('/var/jail/home/team21/Server')
+server_path = '/var/jail/home/team21/Server'
+sys.path.append(server_path)
+sys.path.append(server_path + '/Preferences')
+
 import sqlite3
 from noise import *
 
-database = "database.db"
+database = '../database.db'
 
 
 class User:
