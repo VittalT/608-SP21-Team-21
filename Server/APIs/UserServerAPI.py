@@ -32,80 +32,85 @@ def request_handler(request):
 	POST checkin: provide user, room
 	POST checkout: provide user, room
 	'''
-    if request["method"] == "GET":
-        if request["values"]["task"] == "login":
-            pass # TODO
 
-        elif request["values"]["task"] == "preferences":
-            name = request["values"]["user"]
-            return User.get_user(name)
+    try:
+        if request["method"] == "GET":
+            if request["values"]["task"] == "login":
+                pass # TODO
 
-        elif request["values"]["task"] == "friends":
-            name = request["values"]["user"]
-            return get_friends(name)
+            elif request["values"]["task"] == "preferences":
+                name = request["values"]["user"]
+                return User.get_user(name)
 
-        elif request["values"]["task"] == "friend requests":
-            name = request["values"]["user"]
-            return get_friend_requests(name)
+            elif request["values"]["task"] == "friends":
+                name = request["values"]["user"]
+                return get_friends(name)
 
-        elif request["values"]["task"] == "rooms":
-            update_rooms()
-            all_rooms = get_all_data()
-            for room in all_rooms:
-                room['num_occupants'] = len(room['occupants'])
-                del room['occupants']
-            return all_rooms
+            elif request["values"]["task"] == "friend requests":
+                name = request["values"]["user"]
+                return get_friend_requests(name)
 
-        else:
-            return KeyError("Unknown GET request")
+            elif request["values"]["task"] == "rooms":
+                all_rooms = get_all_data()
+                for room in all_rooms:
+                    room['num_occupants'] = len(room['occupants'])
+                    del room['occupants']
+                return all_rooms
+
+            elif request["values"]["task"] == "loginpage":
+                with open("../login/body.html") as f:
+                    body = f.read()
+                    return body
+
+            else:
+                return KeyError("Unknown POST request")
 
 
-    elif request["method"] == "POST":
-        if request["form"]["task"] == "create account":
-            name = request["form"]["user"]
-            noise_pref = Noise.str_to_enum(request["form"]["noise"])
-            user = User(name, {'noise': noise_pref})
-            user.upload()
+        elif request["method"] == "POST":
+            if request["form"]["task"] == "create account":
+                name = request["form"]["user"]
+                noise_pref = Noise.str_to_enum(request["form"]["noise"])
+                user = User(name, {'noise': noise_pref})
+                user.upload()
 
-        elif request["form"]["task"] == "login":
-            pass # TODO
+            elif request["form"]["task"] == "login":
+                pass # TODO
 
-        elif request["form"]["task"] == "preferences":
-            name = request["form"]["user"]
-            noise_pref = Noise.str_to_enum(request["form"]["noise"])
-            return User.update_noise_pref(name, noise_pref)
+            elif request["form"]["task"] == "preferences":
+                name = request["form"]["user"]
+                noise_pref = Noise.str_to_enum(request["form"]["noise"])
+                return User.update_noise_pref(name, noise_pref)
 
-        elif request["form"]["task"] == "request friend":
-            sender = request["form"]["user"]
-            recipient = request["form"]["friend"]
-            return send_request(sender, recipient)
+            elif request["form"]["task"] == "request friend":
+                sender = request["form"]["user"]
+                recipient = request["form"]["friend"]
+                return send_request(sender, recipient)
 
-        elif request["form"]["task"] == "accept friend":
-            sender = request["form"]["user"]
-            recipient = request["form"]["friend"]
-            return accept_request(sender, recipient)
+            elif request["form"]["task"] == "accept friend":
+                sender = request["form"]["user"]
+                recipient = request["form"]["friend"]
+                return accept_request(sender, recipient)
 
-        elif request["form"]["task"] == "remove friend":
-            sender = request["form"]["user"]
-            recipient = request["form"]["friend"]
-            return remove_friend(sender, recipient)
+            elif request["form"]["task"] == "remove friend":
+                sender = request["form"]["user"]
+                recipient = request["form"]["friend"]
+                return remove_friend(sender, recipient)
 
-        elif request["form"]["task"] == "update rooms":
-            update_rooms()
+            elif request["form"]["task"] == "checkin":
+                name = request["form"]["user"]
+                room = request["form"]["room"]
+                print(name, room)
+                return add_occupant(name, room)
 
-        elif request["form"]["task"] == "checkin":
-            update_rooms()
-            name = request["form"]["user"]
-            room = request["form"]["room"]
-            print(name, room)
-            return add_occupant(name, room)
+            elif request["form"]["task"] == "checkout":
+                name = request["form"]["user"]
+                room = request["form"]["room"]
+                print(name, room)
+                return remove_occupant(name, room)
 
-        elif request["form"]["task"] == "checkout":
-            update_rooms()
-            name = request["form"]["user"]
-            room = request["form"]["room"]
-            print(name, room)
-            return remove_occupant(name, room)
+            else:
+                return KeyError("Unknown POST request")
+
 
         else:
             return KeyError("Unknown POST request")
