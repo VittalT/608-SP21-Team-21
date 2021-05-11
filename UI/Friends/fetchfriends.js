@@ -2,10 +2,7 @@ const makefriend = (friendnum) => {
     const newfriend = document.createElement("div");
     newfriend.classList.add("friendbox");
     newfriend.classList.add("friendbox");
-    newfriend.innerHTML = "<div class="v55_43">" + 
-		"<div class="v55_44">" + "</div>" + 
-		"<span class="v55_45">" + ${friendnum.name} + "</span>" + 
-		"<span class="v55_48">" `Checked in to room ` + ${friendnum.room} + "</span>" + "</div>";
+    newfriend.innerHTML = `<div class="v55_43"><div class="v55_44"></div><span class="v55_45">` + ${friendnum.name} + `</span><span class="v55_48"> Checked in to room ` + ${friendnum.room} + `</span></div>`;
     dashBoard.appendChild(newfriend);
 }
 const fetchfriendlist = () => {
