@@ -65,8 +65,16 @@ def remove_occupant(name, room):
 def user_in_rooms(name, c):
     return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
 
+def get_room(name):
+    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        User.validate(name, c)
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
+        if user_in_rooms(name, c):
+            return c.execute('''SELECT room FROM occupants WHERE user = ?;''', (name,)).fetchone()[0]
+        else:
+            return None
 
-def get_data(room):
+def get_room_info_with_occupants(room):
     """
     Gets the data associated with a given room number. Raises
     a KeyError if the room does not exist
@@ -84,15 +92,20 @@ def get_data(room):
     return {
         "roomnum": room,
         "capacity": capacity,
+        "occupancy": len(occupants),
         "occupants": [occupant[0] for occupant in occupants],
         "noiselevel": "quiet",
         "volumepref": "quiet"
     }
 
+def get_room_info(room):
+    room_info = get_room_info_with_occupants(room)
+    del room_info["occupants"]
+    return room_info
 
-def get_all_data():
+def get_all_rooms_info():
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int);''')
         rooms = c.execute('''SELECT name from rooms''').fetchall()
         rooms = [room[0] for room in rooms]
-        return [get_data(room) for room in rooms]
+        return [get_room_info(room) for room in rooms]

@@ -45,18 +45,22 @@ def request_handler(request):
                 name = request["values"]["user"]
                 return User.get_user(name)
 
+            elif request["values"]["task"] == "friendswithrooms":
+                name = request["values"]["user"]
+                return json.dumps(get_friends_with_rooms(name))
+
             elif request["values"]["task"] == "friends":
                 name = request["values"]["user"]
-                return get_friends(name)
+                return json.dumps(get_friends(name))
 
             elif request["values"]["task"] == "friendrequests":
                 name = request["values"]["user"]
                 return get_friend_requests(name)
 
             elif request["values"]["task"] == "rooms":
-                all_rooms = get_all_data()
+                update_rooms()
+                all_rooms = get_all_rooms_info()
                 for room in all_rooms:
-                    room['occupancy'] = len(room['occupants'])
                     del room['occupants']
                 return json.dumps(all_rooms)
 
@@ -95,16 +99,21 @@ def request_handler(request):
                 return remove_friend(sender, recipient)
 
             elif request["form"]["task"] == "checkin":
+                update_rooms()
                 name = request["form"]["user"]
                 room = request["form"]["room"]
                 print(name, room)
                 return add_occupant(name, room)
 
             elif request["form"]["task"] == "checkout":
+                update_rooms()
                 name = request["form"]["user"]
                 room = request["form"]["room"]
                 print(name, room)
                 return remove_occupant(name, room)
+
+            elif request["form"]["task"] == "updaterooms":
+                update_rooms()
 
             else:
                 return KeyError("Unknown POST request")
@@ -149,7 +158,7 @@ if __name__ == '__main2__':
     print("\n\nWeek 2")
     # Creating rooms
     update_rooms()
-    print(get_all_data())
+    print(get_all_rooms_info())
     print(request_handler({"method":"GET", "values":{"task":"rooms"}}))
 
     # Creating account and updating preferences

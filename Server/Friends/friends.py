@@ -4,8 +4,10 @@ os.chdir('/var/jail/home/team21/Server')
 server_path = '/var/jail/home/team21/Server'
 sys.path.append(server_path)
 sys.path.append(server_path + '/Accounts')
+sys.path.append(server_path + '/Rooms')
 
 from accounts import *
+from rooms import *
 
 database = '../database.db'
 
@@ -59,9 +61,8 @@ def remove_friend(user, friend):
 
 def get_friend_requests(name):
     """
-    Returns a dictionary containing all friends
-    and friend requests, along with status. Raises
-    a KeyError if user does not exist
+    Returns a dictionary containing all friend requests, along with status.
+    Raises a KeyError if user does not exist
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
@@ -78,9 +79,8 @@ def get_friend_requests(name):
 
 def get_friends(name):
     """
-    Returns a dictionary containing all friends
-    and friend requests, along with status. Raises
-    a KeyError if user does not exist
+    Returns a dictionary containing all friends.
+    Raises a KeyError if user does not exist
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
@@ -92,3 +92,7 @@ def get_friends(name):
         received = c.execute('''SELECT friends.sender FROM friends WHERE friends.recipient=? AND friends.status = ?;''', (name, "accepted")).fetchall()
         friends = [friend[0] for friend in set(sent + received)]
         return friends
+
+def get_friends_with_rooms(name):
+    friends = get_friends(name)
+    return [{'name': friend, 'room': get_room(friend)} for friend in friends]
