@@ -1,5 +1,5 @@
 <head>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="login.css" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
@@ -7,6 +7,11 @@
 	<script src="../Login/login.js" defer></script>
   </head>
   <body>
+	<form action="/action_page.php">  <!-- change linking file -->
+		<button class="r16" type="button" value="Back to Dashboard" onclick="backtodashboard()">Back to Dashboard</button>
+	  <!-- <button class="r16" type="button" value="Back to Dashboard" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms'">Back to Dashboard</button> -->
+	  <!-- fix location, link back to the main page -->
+	</form> 
   	<p class="random1">Login</p>
   	<form action="/action_page.php">   <!-- change linking file -->
 	  <label class="r2" for="u_name">Username:</label><br>
