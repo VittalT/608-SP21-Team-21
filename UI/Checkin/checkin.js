@@ -1,6 +1,6 @@
 
 if (typeof checkin === 'undefined') {
-    checkin = (roomno, hoursstay, noise) => {
+    submitcheckin = (roomno, hoursstay, noise) => {
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkin';
         const data=`roomnum=${roomno}&hours=${hoursstay}&noiselevel=${noise}`
