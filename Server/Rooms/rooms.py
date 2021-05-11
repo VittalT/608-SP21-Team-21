@@ -82,9 +82,11 @@ def get_data(room):
         # print(f"Room {room}\n {c.execute('''SELECT * FROM occupants;''').fetchall()} \n")
         occupants = c.execute('''SELECT users.u FROM occupants INNER JOIN users ON occupants.user = users.name WHERE occupants.room = ?;''', (room,)).fetchall()
     return {
-        "room": room,
+        "roomnum": room,
         "capacity": capacity,
         "occupants": [occupant[0] for occupant in occupants]
+        "noiselevel": "quiet",
+        "volumepref": "quiet"
     }
 
 
