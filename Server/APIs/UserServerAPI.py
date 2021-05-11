@@ -63,7 +63,7 @@ def request_handler(request):
                     return body
 
             else:
-                return KeyError("Unknown POST request")
+                return KeyError("Unknown GET request")
 
 
         elif request["method"] == "POST":
@@ -111,12 +111,11 @@ def request_handler(request):
             else:
                 return KeyError("Unknown POST request")
 
-
         else:
-            return KeyError("Unknown POST request")
+            return KeyError("Unknown GET/POST request")
 
-    else:
-        return KeyError("Not a GET/POST request")
+    except Exception as e:
+        return e
 
 if __name__ == '__main2__':
     # print("\n\nWeek 1")
