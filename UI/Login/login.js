@@ -1,4 +1,4 @@
-const login = () => {
+const loginaccount = () => {
     let username = document.getElementById("u_name_login").value;
     let pass = document.getElementById("pword_login").value;
     const HTTP = new XMLHttpRequest();
