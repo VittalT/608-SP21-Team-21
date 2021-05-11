@@ -90,18 +90,17 @@ const friendspage = () => {
 
 const main = () => {
     makeloginbutton();
-    for(let i = 1; i<=18; i++) {
+    fetchroomlist();
+    for(let i = 1; i<=roomlist.length; i++) {
         makeroom(roomlist[i]);
     }
-    fetchroomlist();
-
 }
 
 main();
 
 var setInnerHTML = function(elm, html) {
     elm.innerHTML = html;
-    Array.from(elm.querySelectorAll("script")).forEach( oldScript => {
+    Array.from(document.head.querySelectorAll("script")).forEach( oldScript => {
       const newScript = document.createElement("script");
       Array.from(oldScript.attributes)
         .forEach( attr => newScript.setAttribute(attr.name, attr.value) );
