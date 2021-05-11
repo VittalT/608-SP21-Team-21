@@ -30,8 +30,8 @@ const fetchroomlist = () => {
         if(this.readyState == 4 && this.status==200) {
             console.log(HTTP.responseText);
             roomlist = JSON.parse(HTTP.responseText);
-            for (let room in roomlist) {
-                makeroom(room);
+            for (let i =0 ; i<roomlist.length; i++) {
+                makeroom(roomlist[i]);
             }
         }
     }
@@ -100,6 +100,8 @@ main();
 
 var setInnerHTML = function(elm, html) {
     elm.innerHTML = html;
+    console.log(document.documentElement.innerHTML);
+    console.log(Array.from(document.head.querySelectorAll("script")));
     Array.from(document.head.querySelectorAll("script")).forEach( oldScript => {
       const newScript = document.createElement("script");
       Array.from(oldScript.attributes)
