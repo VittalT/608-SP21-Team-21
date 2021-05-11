@@ -37,10 +37,17 @@ def request_handler(request):
     try:
         if request["method"] == "GET":
             if request["values"]["task"] == "loginpage":
-                with open("../UI/Login/body.html") as f:
+                with open("../UI/Login/login.html") as f:
                     body = f.read()
                     return body
-
+            elif request["values"]["task"] == "checkinpage":
+                with open("../UI/Checkin/checkin.html") as f:
+                    body = f.read()
+                    return body
+            elif request["values"]["task"] == "friendspage":
+                with open("../UI/Friends/friends.html") as f:
+                    body = f.read()
+                    return body
             elif request["values"]["task"] == "preferences":
                 name = request["values"]["user"]
                 return User.get_user(name)
