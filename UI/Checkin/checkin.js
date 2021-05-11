@@ -3,7 +3,8 @@ if (typeof submitcheckin === 'undefined') {
     submitcheckin = (roomno, hoursstay, noise) => {
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkin';
-        const data=`roomnum=${roomno}&hours=${hoursstay}&noiselevel=${noise}`
+        // TODO : add user
+        const data=`task=checkin&roomnum=${roomno}&hours=${hoursstay}&noiselevel=${noise}&user=albert`
         // {
         //     roomnum: roomno,
         //     hours: hoursstay,
