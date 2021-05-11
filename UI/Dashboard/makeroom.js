@@ -3,7 +3,7 @@ const makeroom = (room) => {
     const newroom = document.createElement("div");
     newroom.classList.add("roombox");
     newroom.classList.add("roombox");
-    const roomnum = room.room_num;
+    const roomnum = room.roomnum;
     const occupants = room.occupants;
     const capacity = room.capacity;
     const noiselevel = room.noiselevel;
@@ -29,7 +29,7 @@ const makeroom = (room) => {
 
 const checkin = (roomnum) => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=checkinpage';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkinpage';
     HTTP.open("GET", url);
     HTTP.send();
     HTTP.onreadystatechange = function(){

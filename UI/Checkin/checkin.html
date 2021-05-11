@@ -1,0 +1,43 @@
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+    <link href="main.css" rel="stylesheet" />
+    <title>Check in</title>
+    <script src="checkin.js" defer></script>
+</head>
+<body>
+    <!-- <p class="v584">CHECK IN</p> -->
+    <p class="v585">Checking in to room 5-223:</p>
+    <form action="/action_page.php">  <!-- change linking file -->
+      <button class="r16" type="button" value="Back to Dashboard" onclick="checkin()">Back to Dashboard</button>
+      <!-- <button class="r16" type="button" value="Back to Dashboard" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms'">Back to Dashboard</button> -->
+      <!-- fix location, link back to the main page -->
+    </form> 
+    
+    
+    
+    <p class="v33248">I plan to stay for:</p>
+    <input class="r3" type="text" id="hoursstay" name="hoursstay" value=""><br>
+    <p class="v33249">hours</p>
+    <p class="v593">I can tolerate:</p>
+
+    <div id='block-11' style='padding: 5px;'>
+    <label for='option-11' style=' padding: 2px; font-size: 1.2rem;'>
+      <input type='radio' name='option' value='6/24' id='option-11' style='transform: scale(1); margin-right: 8px; vertical-align: middle; margin-top: -2px;' />
+      loud</label>
+    <span id='result-11'></span>
+  </div>
+  <hr />
+
+  <div id='block-12' style='padding: 5px;'>
+    <label for='option-12' style=' padding: 5px; font-size: 1.2rem;'>
+      <input type='radio' name='option' value='6' id='option-12' style='transform: scale(1); margin-right: 8px; vertical-align: middle; margin-top: -2px;' />
+      quiet</label>
+    <span id='result-12'></span>
+  </div>
+  <hr />
+
+  <form action="/action_page.php">  <!-- change linking file -->
+      <button class="r15" type="button" value="Submit" onclick="checkin()">Submit</button>
+      <!-- fix location, link back to the main page -->
+    </form> 
+</body>

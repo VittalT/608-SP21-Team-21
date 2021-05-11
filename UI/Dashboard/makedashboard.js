@@ -22,7 +22,7 @@ var roomlist = [
 
 const fetchroomlist = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=rooms';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms';
     HTTP.open("GET", url);
     HTTP.send();
 
@@ -59,7 +59,7 @@ const makeloginbutton = () => {
 
 const login = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server/UserServerAPI.py?task=loginpage';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=loginpage';
     HTTP.open("GET", url);
     HTTP.send();
     HTTP.onreadystatechange = function(){
@@ -74,7 +74,7 @@ const login = () => {
 
 const friendspage = () => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server/UserServerAPI.py?task=friendspage';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=friendspage';
     HTTP.open("GET", url);
     HTTP.send();
     HTTP.onreadystatechange = function(){
@@ -90,18 +90,17 @@ const friendspage = () => {
 
 const main = () => {
     makeloginbutton();
-    for(let i = 1; i<=18; i++) {
+    fetchroomlist();
+    for(let i = 1; i<=roomlist.length; i++) {
         makeroom(roomlist[i]);
     }
-    fetchroomlist();
-
 }
 
 main();
 
 var setInnerHTML = function(elm, html) {
     elm.innerHTML = html;
-    Array.from(elm.querySelectorAll("script")).forEach( oldScript => {
+    Array.from(document.head.querySelectorAll("script")).forEach( oldScript => {
       const newScript = document.createElement("script");
       Array.from(oldScript.attributes)
         .forEach( attr => newScript.setAttribute(attr.name, attr.value) );

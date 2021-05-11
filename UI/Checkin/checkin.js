@@ -1,6 +1,6 @@
 const checkin = (roomno, hoursstay, noise) => {
     const HTTP = new XMLHttpRequest();
-    const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=checkin';
+    const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkin';
 	const data={
 		roomnum: roomno,
 		hours: hoursstay,
