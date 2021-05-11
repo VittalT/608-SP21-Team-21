@@ -70,13 +70,18 @@ def request_handler(request):
 
         elif request["method"] == "POST":
             if request["form"]["task"] == "createaccount":
-                name = request["form"]["user"]
-                noise_pref = Noise.str_to_enum(request["form"]["noise"])
-                user = User(name, {'noise': noise_pref})
-                user.upload()
+                # name = request["form"]["user"]
+                # noise_pref = Noise.str_to_enum(request["form"]["noise"])
+                # user = User(name, {'noise': noise_pref})
+                # user.upload()
+                with open("../UI/Dashboard/dashboard.html") as f:
+                    body = f.read()
+                    return body
 
             elif request["form"]["task"] == "login":
-                pass # TODO
+                with open("../UI/Dashboard/dashboard.html") as f:
+                    body = f.read()
+                    return body
 
             elif request["form"]["task"] == "preferences":
                 name = request["form"]["user"]
