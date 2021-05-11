@@ -3,7 +3,7 @@ const login = (roomno, hoursstay, noise) => {
     const url='http://608dev-2.net/sandbox/sc/team21/Server-Side/User-Server-API.py?task=login';
 	const data={
 		room: roomno,
-		hours: hoursstay
+		hours: hoursstay,
 		noiselvl: noise
 	};
 	dataType='JSON';
