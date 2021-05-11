@@ -46,6 +46,10 @@ def request_handler(request):
             with open("../UI/Friends/friends.html") as f:
                 body = f.read()
                 return body
+        elif request["values"]["task"] == "dashboardpage":
+            with open("../UI/Dashboard/dashboard.html") as f:
+                body = f.read()
+                return body
         elif request["values"]["task"] == "preferences":
             name = request["values"]["user"]
             return User.get_user(name)

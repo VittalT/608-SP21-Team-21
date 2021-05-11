@@ -6,10 +6,10 @@ if (typeof makeroom === 'undefined') {
         newroom.classList.add("roombox");
         newroom.classList.add("roombox");
         const roomnum = room.roomnum;
-        const occupants = room.occupants;
+        const occupancy = room.occupancy;
         const capacity = room.capacity;
         const noiselevel = room.noiselevel;
-        const volumeprefs = room.volumeprefs;
+        const volumepref = room.volumepref;
         // newroom.innerText = `Test room number ${roomnum}`;
     
     //     // newroom.innerText = `Test room number ${roomnum} \\`;
@@ -18,9 +18,9 @@ if (typeof makeroom === 'undefined') {
     // 			`Current noise level: Quiet \r\n` +
     // 			`Volume Preferences: Quiet \r\n` + "</div>" +
         newroom.innerHTML = "<div>" + `Room number ${roomnum}` + "</div>" +
-                            "<div>" + `Occupancy: ${occupants}/${capacity}` + "</div>" +
+                            "<div>" + `Occupancy: ${occupancy}/${capacity}` + "</div>" +
                             "<div>" + `Current Noise Level: ${noiselevel}` + "</div>" +
-                            "<div>" + `Volume Preferences: ${volumeprefs}` + "</div>" +
+                            "<div>" + `Volume Preferences: ${volumepref}` + "</div>" +
                             `<button class="checkin"
                                 type="button"
                                 value="Check In"
