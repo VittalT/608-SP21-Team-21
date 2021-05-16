@@ -4,7 +4,6 @@ if (typeof makeroom === 'undefined') {
         const dashBoard = document.getElementById("dashboard");
         const newroom = document.createElement("div");
         newroom.classList.add("roombox");
-        newroom.classList.add("roombox");
         const roomnum = room.roomnum;
         const occupancy = room.occupancy;
         const capacity = room.capacity;
@@ -46,15 +45,4 @@ if (typeof makeroom === 'undefined') {
             }
         }
     }
-
-    // var setInnerHTML = function(elm, html) {
-    //     elm.innerHTML = html;
-    //     Array.from(elm.querySelectorAll("script")).forEach( oldScript => {
-    //     const newScript = document.createElement("script");
-    //     Array.from(oldScript.attributes)
-    //         .forEach( attr => newScript.setAttribute(attr.name, attr.value) );
-    //     newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-    //     oldScript.parentNode.replaceChild(newScript, oldScript);
-    //     });
-    // }
 }

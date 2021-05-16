@@ -86,9 +86,10 @@ def request_handler(request):
                 return body
 
         elif request["form"]["task"] == "login":
-            with open("../UI/Dashboard/dashboard.html") as f:
-                body = f.read()
-                return body
+            # with open("../UI/Dashboard/dashboard.html") as f:
+            #     body = f.read()
+            #     return body
+            return json.dumps({"loginSuccess": False})
 
         elif request["form"]["task"] == "preferences":
             name = request["form"]["user"]

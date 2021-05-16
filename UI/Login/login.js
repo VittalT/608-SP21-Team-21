@@ -1,11 +1,11 @@
 
 if (typeof loginaccount === 'undefined') {
     loginaccount = () => {
-        let username = document.getElementById("u_name_login").value;
+        let usernm = document.getElementById("u_name_login").value;
         let pass = document.getElementById("pword_login").value;
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py';
-        const data=`task=login&user=${username}&password=${pass}`
+        const data=`task=login&user=${usernm}&password=${pass}`
         // {
         //     task: "login",
         // 	user: username,
@@ -19,9 +19,21 @@ if (typeof loginaccount === 'undefined') {
         HTTP.onreadystatechange = function(){
             if(this.readyState == 4 && this.status==200) {
                 console.log(HTTP.responseText);
-                const doc = document.documentElement;
-                // doc.innerHTML = HTTP.responseText;
-                setInnerHTML(doc, HTTP.responseText);
+                // const doc = document.documentElement;
+                // // doc.innerHTML = HTTP.responseText;
+                // setInnerHTML(doc, HTTP.responseText);
+                resp = JSON.parse(HTTP.responseText);
+                if (resp.loginSuccess) {
+                    USERNAME = usernm;
+                    TOKEN = resp.token;
+                    backtodashboard();
+                } else {
+                    el = document.getElementById("loginform");
+                    const fail = document.createElement("div");
+                    fail.classList.add("failedtologin");
+                    fail.innerText = "Incorrect username or password";
+                    el.appendChild(fail);
+                }
                 // TODO: below code to be implemented after the Check In page is created.
                 //roomnum = document.getElementById("roomnum")
                 //roomnum.innerText = roomnum
@@ -54,9 +66,23 @@ if (typeof loginaccount === 'undefined') {
         HTTP.onreadystatechange = function(){
             if(this.readyState == 4 && this.status==200) {
                 console.log(HTTP.responseText);
-                const doc = document.documentElement;
-                // doc.innerHTML = HTTP.responseText;
-                setInnerHTML(doc, HTTP.responseText);
+                // const doc = document.documentElement;
+                // // doc.innerHTML = HTTP.responseText;
+                // setInnerHTML(doc, HTTP.responseText);
+                resp = JSON.parse(HTTP.responseText);
+                if (resp.createAccountSuccess) {
+                    USERNAME = usernm;
+                    TOKEN = resp.token;
+                    backtodashboard();
+                } else {
+                    el = document.getElementById("createaccountform");
+                    const fail = document.createElement("div");
+                    fail.classList.add("failedtologin");
+                    fail.innerText = "Incorrect username or password";
+                    el.appendChild(fail);
+                }
+
+
                 // TODO: below code to be implemented after the Check In page is created.
                 //roomnum = document.getElementById("roomnum")
                 //roomnum.innerText = roomnum
