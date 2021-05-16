@@ -60,12 +60,15 @@ static int PathTrackFillingSize = 1; // init this to 1 as we start from state wh
 static int LeftPreviousStatus = NOBODY;
 static int RightPreviousStatus = NOBODY;
 
-static int center[2] = {0,0}; /* center of the two zones */  
+//TODO: CALIBRATION
+static int center[2] = {87,87}; /* zone1, zone0: center of the two zones */  
+/* 87 */
 static int Zone = 0;
+static int old_PplCounter = 0;
 static int PplCounter = 0;
 
-static int ROI_height = 0;
-static int ROI_width = 0;
+static int ROI_height = 8;
+static int ROI_width = 8;
 
 static int delay_between_measurements = 0;
 static int time_budget_in_ms = 0;
@@ -130,12 +133,19 @@ void zones_calibration(){
 
 
 void loop(){
-  getDistance(Zone);
-  processPeopleCountingData(distance, Zone);
-  post_to_server();
-  // do the same to the other zone
-  Zone++;
-  Zone = Zone%2;
+//    getDistancetest();
+    delay(500);
+    getDistance(Zone);
+    
+    processPeopleCountingData(distance, Zone);
+    Serial.println(PplCounter);
+    if (PplCounter!= old_PplCounter){ //only posts when the occupancy changes
+        post_to_server();
+        old_PplCounter = PplCounter;
+    }
+    // do the same to the other zone
+    Zone++;
+    Zone = Zone%2;
 }
 
 
@@ -151,28 +161,34 @@ void post_to_server(){
       PplCounter_len = 2;
     }
     offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", 24+strlen(room)+PplCounter_len);
-    offset += sprintf(request + offset, "{\"room\":\"%s\", \"capacity\":\"%s\"}\"\r\n", room, PplCounter);
+    offset += sprintf(request + offset, "{\"room\":\"%s\", \"occupancy\":\"%d\"}\"\r\n", room, PplCounter);
     Serial.println(request);
+    
     do_http_request("608dev-2.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
     Serial.println("-----------");
     Serial.println(response);
     Serial.println("-----------");
 }
 
-
-
-void getDistance(int current_zone)
+void getDistancetest()
 {
-  distanceSensor.setROI(ROI_height, ROI_width, center[current_zone]);  // first value: height of the zone, second value: width of the zone
-  delay(delay_between_measurements);
-  distanceSensor.setTimingBudgetInMs(time_budget_in_ms);
   distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
   distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
   distanceSensor.clearInterrupt();
   distanceSensor.stopRanging();
+  Serial.print("distance: ");
+  Serial.println(distance/10.00);
+}
+
+void getDistance(int current_zone)
+{
+  distanceSensor.setROI(ROI_height, ROI_width, center[current_zone]);  // first value: height of the zone, second value: width of the zone
+  distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
+  distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+  distanceSensor.stopRanging();
   Serial.print("Zone ");
   Serial.print(current_zone);
-  Serial.print("distance: ");
+  Serial.print(", distance: ");
   Serial.println(distance/10.00);
 }
 
