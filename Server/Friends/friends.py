@@ -20,8 +20,8 @@ def send_request(sender, recipient):
     """
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
-        User.validate(sender, c)
-        User.validate(recipient, c)
+        User.validate(sender)
+        User.validate(recipient)
         # raices exception if friendship already exists
         if recipient in get_friend_requests(sender):
             raise AssertionError(f"Already contacted {recipient}")
@@ -33,8 +33,8 @@ def accept_request(user, sender):
     Accepts a friend request from a given user
     """
     with sqlite3.connect(database) as c:
-        User.validate(user, c)
-        User.validate(sender, c)
+        User.validate(user)
+        User.validate(sender)
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
         try:
             if c.execute('''SELECT status FROM friends WHERE sender=? AND recipient=?;''', (sender, user)).fetchone()[0] == "pending":
@@ -50,8 +50,8 @@ def remove_friend(user, friend):
     Accepts a friend request from a given user
     """
     with sqlite3.connect(database) as c:
-        User.validate(user, c)
-        User.validate(friend, c)
+        User.validate(user)
+        User.validate(friend)
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
         if friend in get_friends(user):
             c.execute('''DELETE FROM friends WHERE (sender=? AND recipient=?) OR (sender=? and recipient=?);''', (user, friend, friend, user))
@@ -67,7 +67,7 @@ def get_friend_requests(name):
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
-        User.validate(name, c)
+        User.validate(name)
         # sent = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.recipient=users.name WHERE friends.sender=?;''', (name,)).fetchall()
         # received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.sender=users.name WHERE friends.recipient=?;''', (name,)).fetchall()
         sent = c.execute('''SELECT friends.recipient, friends.status FROM friends WHERE friends.sender=?;''', (name,)).fetchall()
@@ -85,7 +85,7 @@ def get_friends(name):
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
-        User.validate(name, c)
+        User.validate(name)
         # sent = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.recipient=users.name WHERE friends.sender=?;''', (name,)).fetchall()
         # received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.sender=users.name WHERE friends.recipient=?;''', (name,)).fetchall()
         sent = c.execute('''SELECT friends.recipient FROM friends WHERE friends.sender=? AND friends.status = ?;''', (name, "accepted")).fetchall()

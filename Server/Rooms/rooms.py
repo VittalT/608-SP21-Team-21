@@ -48,7 +48,7 @@ def add_occupant(name, room):
     """
 
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        User.validate(name, c)
+        User.validate(name)
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
         c.execute('''INSERT INTO occupants VALUES (?, ?, ?);''', (name, room, datetime.datetime.now()))
 
@@ -58,18 +58,20 @@ def remove_occupant(name, room):
     is not a User object and a KeyError if room does not exist
     """
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        User.validate(name, c)
+        User.validate(name)
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
         c.execute('''DELETE FROM occupants WHERE user = ? AND room = ?;''', (name, room))
 
-def user_in_rooms(name, c):
-    return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
+def user_in_rooms(name):
+    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
+        return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
 
 def get_room(name):
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        User.validate(name, c)
+        User.validate(name)
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, timing timestamp);''')
-        if user_in_rooms(name, c):
+        if user_in_rooms(name):
             return c.execute('''SELECT room FROM occupants WHERE user = ?;''', (name,)).fetchone()[0]
         else:
             return None

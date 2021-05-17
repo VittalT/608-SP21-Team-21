@@ -6,9 +6,11 @@ server_path = '/var/jail/home/team21/Server'
 sys.path.append(server_path)
 sys.path.append(server_path + '/Friends')
 sys.path.append(server_path + '/Rooms')
+sys.path.append(server_path + '/Login')
 
 from friends import *
 from rooms import *
+from login import *
 
 database = '../database.db'
 
@@ -79,40 +81,70 @@ def request_handler(request):
         if request["form"]["task"] == "createaccount":
             name = request["form"]["user"]
             password = request["form"]["password"]
-            user = User(name, {'noise': Noise.no_pref})
-            returnInfo = {'createAccountSuccess': False, 'token': None}
-            try:
-                user.upload()
-
-            except:
-                # Username already exists
+            if User.created(name):
+                # User already exists
                 return json.dumps({'createAccountSuccess': False, 'token': None})
 
+            token = generateToken()
+            user = User(name, {'password': password, 'token': token, 'volumePref': Noise.no_pref})
+            user.upload()
+            return json.dumps({'createAccountSuccess': True, 'token': token})
+
         elif request["form"]["task"] == "login":
-            # with open("../UI/Dashboard/dashboard.html") as f:
-            #     body = f.read()
-            #     return body
-            return json.dumps({"loginSuccess": False})
+            name = request["form"]["user"]
+            password = request["form"]["password"]
+            if correct_password(name, password):
+                user = User.get_user(name)
+                token = generateToken()
+                user['token'] = token
+                user.update()
+                return json.dumps({"loginSuccess": True, 'token': token})
+            else:
+                return json.dumps({"loginSuccess": False, 'token': ''})
 
         elif request["form"]["task"] == "preferences":
             name = request["form"]["user"]
             noise_pref = Noise.str_to_enum(request["form"]["noise"])
-            return User.update_noise_pref(name, noise_pref)
+            return json.dumps(User.update_noise_pref(name, noise_pref))
 
         elif request["form"]["task"] == "requestfriend":
             sender = request["form"]["user"]
+            token = request["form"]["token"]
+            if not correct_token(sender, token):
+                return json.dumps({'requestFriendSuccess': False})
+
             recipient = request["form"]["friend"]
-            return send_request(sender, recipient)
+            try:
+                send_request(sender, recipient)
+                return json.dumps({'requestFriendSuccess': True})
+            except:
+                json.dumps({'requestFriendSuccess': False})
 
         elif request["form"]["task"] == "acceptfriend":
             sender = request["form"]["user"]
+            token = request["form"]["token"]
+            if not correct_token(sender, token):
+                return json.dumps({'addFriendSuccess': False})
+
             recipient = request["form"]["friend"]
-            return accept_request(sender, recipient)
+            try:
+                accept_request(sender, recipient)
+                return json.dumps({'addFriendSuccess': True})
+            except:
+                json.dumps({'addFriendSuccess': False})
 
         elif request["form"]["task"] == "removefriend":
             sender = request["form"]["user"]
+            token = request["form"]["token"]
+            if not correct_token(sender, token):
+                return json.dumps({'removeFriendSuccess': False})
+
             recipient = request["form"]["friend"]
-            return remove_friend(sender, recipient)
+            try:
+                remove_friend(sender, recipient)
+                return json.dumps({'removeFriendSuccess': True})
+            except:
+                json.dumps({'removeFriendSuccess': False})
 
         elif request["form"]["task"] == "checkin":
             update_rooms()

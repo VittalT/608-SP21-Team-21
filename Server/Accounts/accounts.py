@@ -80,7 +80,7 @@ class User:
         sqlite3.register_adapter(User, User.adapt_user)
         with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
             c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
-            if not User.created(self.name, c):
+            if not User.created(self.name):
                 c.execute('''INSERT INTO users VALUES (?, ?);''', (self.name, self))
                 return f'Account {self.name} created.'
             else:
@@ -110,19 +110,22 @@ class User:
         return User(name, {'password': password, 'token': token, 'volumePref': Noise(int(volumePref))})
 
     @staticmethod
-    def created(name, c):
-        c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
-        return c.execute('''SELECT EXISTS (SELECT 1 FROM users WHERE name = ?);''', (name,)).fetchone()[0]
+    def created(name):
+        with sqlite3.connect(database) as c:
+            c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
+            return c.execute('''SELECT EXISTS (SELECT 1 FROM users WHERE name = ?);''', (name,)).fetchone()[0]
 
     @staticmethod
-    def validate(name, c):
+    def validate(name):
         """
         Returns True if a user is in the database, raises
         KeyError otherwise
         """
-        if not User.created(name, c):
-            raise KeyError(f"{name} is not a valid user")
-        return True
+        with sqlite3.connect(database) as c:
+            c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
+            if not User.created(name):
+                raise KeyError(f"{name} is not a valid user")
+            return True
 
     @staticmethod
     def get_user(name):
@@ -133,7 +136,7 @@ class User:
         sqlite3.register_converter("user", User.convert_user)
         with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
             c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
-            User.validate(name, c)
+            User.validate(name)
             return c.execute('''SELECT u FROM users WHERE name = ?''', (name,)).fetchone()[0]
 
     @staticmethod
@@ -156,7 +159,7 @@ class User:
         sqlite3.register_adapter(User, User.adapt_user)
         with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
             c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
-            if User.created(self.name, c):
+            if User.created(self.name):
                 c.execute('''UPDATE users SET u = ? WHERE name = ?;''', (self, self.name))
                 return f'User {self.name} updated.'
             else:
