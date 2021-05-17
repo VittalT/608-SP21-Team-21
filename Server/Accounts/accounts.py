@@ -12,23 +12,20 @@ database = '../database.db'
 
 
 class User:
-    def __init__(self, name="anonymous", preferences=None):
+    def __init__(self, name="anonymous", info=None):
         """
         Constructor for User object. Will create a new binding between
         a name and a User object in users table
         """
         assert ';' not in name, "Usernames cannot include ';'"
         self.name = name
-        self.preferences = preferences
-
-    # def __repr__(self):
-    #     return f"User(\"{self.name}\",\"{self.preferences}\")"
+        self.info = info
 
     def __repr__(self):
-        return f"User(\'{self.name}\', {{'noise' : {self.preferences['noise']}}})"
+        return f"User(\'{self.name}\', {self.info})"
 
     def __str__(self):
-        return f"{self.name} {Noise.str_form(self.preferences['noise'])}."
+        return f"{self.name} {Noise.str_form(self.info['volumePref'])}."
 
     @property
     def name(self):
@@ -50,28 +47,29 @@ class User:
         self._name = value
 
     @property
-    def preferences(self):
+    def info(self):
         """
-        Getter function for preferences attribute
+        Getter function for info attribute
         """
-        if self._preferences is None:
-            self._preferences = {'noise': Noise.no_pref}
-        return self._preferences
+        if self._info is None:
+            self._info = {'password': '', 'token': '', 'volumePref': Noise.no_pref}
+        return self._info
 
-    def get_noise_pref(self):
-        return self.preferences['noise']
+    def get_volume_pref(self):
+        return self.info['volumePref']
 
-    @preferences.setter
-    def preferences(self, value):
+    @info.setter
+    def info(self, value):
         """
         Setter function for preferences attribute. Raises
         a TypeError if input is not a string
         """
         if value is None:
-            value = {'noise': Noise.no_pref}
+            value = {'password': '', 'token': '', 'volumePref': Noise.no_pref}
 
-        if not (isinstance(value, dict) and isinstance(value['noise'], Noise)):
-            raise TypeError("Noise preferences must be a noise enum")
+        if not (isinstance(value, dict) and isinstance(value['volumePref'], Noise)
+                and isinstance(value['password'], str) and isinstance(value['token'], str)):
+            raise TypeError("Info has invalid password, token, or volumePref")
         self._preferences = value
 
     def upload(self):
@@ -93,7 +91,7 @@ class User:
         Gets a string representation of a User object to store in
         SQL table. ONLY INTENDED FOR USE IN users TABLE
         """
-        return f"{self.name};{self.preferences['noise'].value}"
+        return f"{self.name};{self.info['password']};{self.info['token']};{self.info['volumePref'].value}"
 
     def __conform__(self, protocol):
         """
@@ -108,8 +106,8 @@ class User:
         Converts a bytes response from an SQL table into
         a User object
         """
-        name, prefs = map(lambda x: x.decode("utf-8"), self.split(b";"))
-        return User(name, {'noise': Noise(int(prefs))})
+        name, password, token, volumePref = map(lambda x: x.decode("utf-8"), self.split(b";"))
+        return User(name, {'password': password, 'token': token, 'volumePref': Noise(int(volumePref))})
 
     @staticmethod
     def created(name, c):
@@ -173,5 +171,5 @@ class User:
     @staticmethod
     def update_noise_pref(name, new_noise_pref):
         user = User.get_user(name)
-        user.preferences['noise'] = new_noise_pref
+        user.preferences['volumePref'] = new_noise_pref
         return User.update(user)

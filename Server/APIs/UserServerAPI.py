@@ -77,13 +77,16 @@ def request_handler(request):
 
     elif request["method"] == "POST":
         if request["form"]["task"] == "createaccount":
-            # name = request["form"]["user"]
-            # noise_pref = Noise.str_to_enum(request["form"]["noise"])
-            # user = User(name, {'noise': noise_pref})
-            # user.upload()
-            with open("../UI/Dashboard/dashboard.html") as f:
-                body = f.read()
-                return body
+            name = request["form"]["user"]
+            password = request["form"]["password"]
+            user = User(name, {'noise': Noise.no_pref})
+            returnInfo = {'createAccountSuccess': False, 'token': None}
+            try:
+                user.upload()
+
+            except:
+                # Username already exists
+                return json.dumps({'createAccountSuccess': False, 'token': None})
 
         elif request["form"]["task"] == "login":
             # with open("../UI/Dashboard/dashboard.html") as f:
