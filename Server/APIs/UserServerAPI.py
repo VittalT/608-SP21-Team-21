@@ -36,19 +36,19 @@ def request_handler(request):
 	POST checkout: provide user, room
 	'''
     if request["method"] == "GET":
-        if request["values"]["task"] == "loginpage":
+        if request["values"]["task"] == "loginPage":
             with open("../UI/Login/login.html") as f:
                 body = f.read()
                 return body
-        elif request["values"]["task"] == "checkinpage":
+        elif request["values"]["task"] == "checkinPage":
             with open("../UI/Checkin/checkin.html") as f:
                 body = f.read()
                 return body
-        elif request["values"]["task"] == "friendspage":
+        elif request["values"]["task"] == "friendsPage":
             with open("../UI/Friends/friends.html") as f:
                 body = f.read()
                 return body
-        elif request["values"]["task"] == "dashboardpage":
+        elif request["values"]["task"] == "dashboardPage":
             with open("../UI/Dashboard/dashboard.html") as f:
                 body = f.read()
                 return body
@@ -56,7 +56,7 @@ def request_handler(request):
             name = request["values"]["user"]
             return User.get_user(name)
 
-        elif request["values"]["task"] == "friendswithrooms":
+        elif request["values"]["task"] == "friendsWithRooms":
             name = request["values"]["user"]
             return json.dumps(get_friends_with_rooms(name))
 
@@ -64,7 +64,7 @@ def request_handler(request):
             name = request["values"]["user"]
             return json.dumps(get_friends(name))
 
-        elif request["values"]["task"] == "friendrequests":
+        elif request["values"]["task"] == "friendRequests":
             name = request["values"]["user"]
             return get_friend_requests(name)
 
@@ -78,7 +78,7 @@ def request_handler(request):
 
 
     elif request["method"] == "POST":
-        if request["form"]["task"] == "createaccount":
+        if request["form"]["task"] == "createAccount":
             name = request["form"]["user"]
             password = request["form"]["password"]
             if User.created(name):
@@ -107,7 +107,7 @@ def request_handler(request):
             noise_pref = Noise.str_to_enum(request["form"]["noise"])
             return json.dumps(User.update_noise_pref(name, noise_pref))
 
-        elif request["form"]["task"] == "requestfriend":
+        elif request["form"]["task"] == "requestFriend":
             sender = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(sender, token):
@@ -120,7 +120,7 @@ def request_handler(request):
             except:
                 json.dumps({'requestFriendSuccess': False})
 
-        elif request["form"]["task"] == "acceptfriend":
+        elif request["form"]["task"] == "acceptFriend":
             sender = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(sender, token):
@@ -133,7 +133,7 @@ def request_handler(request):
             except:
                 json.dumps({'addFriendSuccess': False})
 
-        elif request["form"]["task"] == "removefriend":
+        elif request["form"]["task"] == "removeFriend":
             sender = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(sender, token):
@@ -149,7 +149,7 @@ def request_handler(request):
         elif request["form"]["task"] == "checkin":
             update_rooms()
             name = request["form"]["user"]
-            room = request["form"]["roomnum"]
+            room = request["form"]["roomNum"]
             print(name, room)
             add_occupant(name, room)
             with open("../UI/Dashboard/dashboard.html") as f:
@@ -159,11 +159,11 @@ def request_handler(request):
         elif request["form"]["task"] == "checkout":
             update_rooms()
             name = request["form"]["user"]
-            room = request["form"]["roomnum"]
+            room = request["form"]["roomNum"]
             print(name, room)
             return remove_occupant(name, room)
 
-        elif request["form"]["task"] == "updaterooms":
+        elif request["form"]["task"] == "updateRooms":
             update_rooms()
 
         else:
