@@ -4,10 +4,10 @@ if (typeof makeroom === 'undefined') {
         const dashBoard = document.getElementById("dashboard");
         const newroom = document.createElement("div");
         newroom.classList.add("roombox");
-        const roomnum = room.roomnum;
+        const roomnum = room.roomNum;
         const occupancy = room.occupancy;
         const capacity = room.capacity;
-        const noiselevel = room.noiselevel;
+        const noiselevel = room.noiseLevel;
         const volumepref = room.volumepref;
         // newroom.innerText = `Test room number ${roomnum}`;
     
@@ -30,7 +30,7 @@ if (typeof makeroom === 'undefined') {
 
     checkin = (roomnum) => {
         const HTTP = new XMLHttpRequest();
-        const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkinpage';
+        const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkinPage';
         HTTP.open("GET", url);
         HTTP.send();
         HTTP.onreadystatechange = function(){

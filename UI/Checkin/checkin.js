@@ -1,10 +1,10 @@
 
 if (typeof submitcheckin === 'undefined') {
-    submitcheckin = (roomno, hoursstay, noise) => {
+    submitcheckin = (roomno, hoursstay, volumepref) => {
         const HTTP = new XMLHttpRequest();
-        const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=checkin';
+        const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py';
         // TODO : add user
-        const data=`task=checkin&roomnum=${roomno}&hours=${hoursstay}&noiselevel=${noise}&user=Vittal`
+        const data=`task=checkin&roomNum=${roomno}&hours=${hoursstay}&volumePref=${volumepref}&user=${USERNAME}&token=${TOKEN}`
         // {
         //     roomnum: roomno,
         //     hours: hoursstay,
@@ -17,9 +17,19 @@ if (typeof submitcheckin === 'undefined') {
         HTTP.onreadystatechange = function(){
             if(this.readyState == 4 && this.status==200) {
                 console.log(HTTP.responseText);
-                const doc = document.documentElement;
+                // const doc = document.documentElement;
                 // doc.innerHTML = HTTP.responseText;
-                setInnerHTML(doc, HTTP.responseText);
+                // setInnerHTML(doc, HTTP.responseText);
+                resp = JSON.parse(HTTP.responseText);
+                if (resp.checkinSuccess) {
+                    backtodashboard();
+                } else {
+                    el = document.body;
+                    const fail = document.createElement("div");
+                    fail.classList.add("checkinFail");
+                    fail.innerText = "Failed to Check In. Check that info is correct and try again.";
+                    el.appendChild(fail);
+                }
                 // TODO: below code to be implemented after the Check In page is created.
                 //roomnum = document.getElementById("roomnum")
                 //roomnum.innerText = roomnum

@@ -26,6 +26,7 @@ if (typeof loginaccount === 'undefined') {
                 if (resp.loginSuccess) {
                     USERNAME = usernm;
                     TOKEN = resp.token;
+                    loggedin = true;
                     backtodashboard();
                 } else {
                     el = document.getElementById("loginform");
@@ -52,7 +53,7 @@ if (typeof loginaccount === 'undefined') {
             pass = pass1
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py';
-        const data=`task=createaccount&user=${username}&password=${pass}`
+        const data=`task=createAccount&user=${username}&password=${pass}`
         // {
         //     task: "creataccount",
         // 	user: username,
@@ -73,6 +74,7 @@ if (typeof loginaccount === 'undefined') {
                 if (resp.createAccountSuccess) {
                     USERNAME = usernm;
                     TOKEN = resp.token;
+                    loggedin = true;
                     backtodashboard();
                 } else {
                     el = document.getElementById("createaccountform");
