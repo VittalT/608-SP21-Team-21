@@ -125,7 +125,7 @@ def request_handler(request):
                 return json.dumps({'createAccountSuccess': False, 'token': None})
 
             token = generateToken()
-            user = User(name, {'password': password, 'token': token, 'volumePref': Noise.no_pref})
+            user = User(name, {'password': password, 'token': token, 'volumePref': Noise.noPref})
             user.upload()
             return json.dumps({'createAccountSuccess': True, 'token': token})
 
@@ -234,6 +234,24 @@ def request_handler(request):
             except:
                 return json.dumps({'autoCheckoutSuccess': False, 'status': 'Could not auto checkout'})
 
+        elif request["form"]["task"] == "updateOccupancy":
+            try:
+                room = request["form"]["roomNum"]
+                occupancy = request["form"]["occupancy"]
+                update_room_occupancy(room, occupancy)
+                return json.dumps({'updateOccupancySuccess': True, 'status': None})
+            except:
+                return json.dumps({'updateOccupancySuccess': False, 'status': 'Could not update occupancy'})
+
+        elif request["form"]["task"] == "updateNoiseLevel":
+            try:
+                room = request["form"]["roomNum"]
+                noiseLevel = request["form"]["noiseLevel"]
+                update_room_noiseLevel(room, noiseLevel)
+                return json.dumps({'updateNoiseLevelSuccess': True, 'status': None})
+            except:
+                return json.dumps({'updateNoiseLevelSuccess': False, 'status': 'Could not update noise level'})
+
         else:
             return KeyError("Unknown POST request")
 
@@ -250,7 +268,7 @@ if __name__ == '__main2__':
     # print(me)
     # print()
     #
-    # Ricardo = User('Ricardo', {'noise': Noise.no_pref})
+    # Ricardo = User('Ricardo', {'noise': Noise.noPref})
     # print(Ricardo.upload())
     # print(User.get_user('Ricardo'))
     # print(User.update_noise_pref('Ricardo', Noise.quiet))

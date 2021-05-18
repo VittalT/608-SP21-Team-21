@@ -80,6 +80,18 @@ def get_room(name):
         else:
             return None
 
+def update_room_occupancy(room, occupancy):
+    with sqlite3.connect(database) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        c.execute('''UPDATE rooms SET occupancy=? WHERE name=?;''', (occupancy, room))
+
+
+def update_room_noiseLevel(room, noiseLevel):
+    with sqlite3.connect(database) as c:
+        c.execute(
+            '''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel, room))
+
 def get_room_info(room, name = None):
     """
     Gets the data associated with a given room number. Raises

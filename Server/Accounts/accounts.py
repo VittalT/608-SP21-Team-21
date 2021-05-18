@@ -70,7 +70,7 @@ class User:
         if not (isinstance(value, dict) and isinstance(value['volumePref'], Noise)
                 and isinstance(value['password'], str) and isinstance(value['token'], str)):
             raise TypeError("Info has invalid password, token, or volumePref")
-        self._preferences = value
+        self._info = value
 
     def upload(self):
         """
