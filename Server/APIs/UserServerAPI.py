@@ -47,11 +47,14 @@ def request_handler(request):
                 return body
 
         elif request["values"]["task"] == "friendsPage":
+            auto_checkout()
             with open("../UI/Friends/friends.html") as f:
                 body = f.read()
                 return body
 
         elif request["values"]["task"] == "dashboardPage":
+            update_rooms()
+            auto_checkout()
             with open("../UI/Dashboard/dashboard.html") as f:
                 body = f.read()
                 return body
@@ -83,7 +86,6 @@ def request_handler(request):
             return json.dumps({'requestFriendRequestsSuccess': True, 'status': 'Success, Logged in', 'friendRequests': get_friend_requests(name)})
 
         elif request["values"]["task"] == "rooms":
-            update_rooms()
             if "user" in request["values"]:
                 name = request["values"]["user"]
                 token = request["values"]["token"]
@@ -189,7 +191,6 @@ def request_handler(request):
                 json.dumps({'removeFriendSuccess': False, 'status': 'Could not remove friend'})
 
         elif request["form"]["task"] == "checkin":
-            update_rooms()
             name = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(name, token):
@@ -205,7 +206,6 @@ def request_handler(request):
                 return json.dumps({'checkinSuccess': False, 'status': 'Could not checkin'})
 
         elif request["form"]["task"] == "checkout":
-            update_rooms()
             name = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(name, token):
@@ -224,6 +224,13 @@ def request_handler(request):
                 return json.dumps({'updateRoomsSuccess': True, 'status': None})
             except:
                 return json.dumps({'updateRoomsSuccess': False, 'status': 'Could not update rooms from Atlas'})
+
+        elif request["form"]["task"] == "autoCheckout":
+            try:
+                auto_checkout()
+                return json.dumps({'autoCheckoutSuccess': True, 'status': None})
+            except:
+                return json.dumps({'autoCheckoutSuccess': False, 'status': 'Could not auto checkout'})
 
         else:
             return KeyError("Unknown POST request")

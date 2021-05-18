@@ -133,3 +133,11 @@ def get_all_rooms_info(name = None):
         rooms = c.execute('''SELECT name from rooms''').fetchall()
         rooms = [room[0] for room in rooms]
         return [get_room_info(room, name) for room in rooms]
+
+def auto_checkout():
+    """
+    Auto checkout if time is after endTime
+    """
+    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''DELETE FROM occupants WHERE endTime > ?;''', (datetime.datetime.now(),))
