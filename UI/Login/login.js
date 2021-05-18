@@ -45,11 +45,11 @@ if (typeof loginaccount === 'undefined') {
     createaccount = () => {
         let username = document.getElementById("usercreateacc").value;
         let pass1 = document.getElementById("pwordcreateacc").value;
-        let pass2 = document.getElementById("rtpwordcreateacc").value;
-        if (pass1 != pass2)
-            //Do something about it
-            pass = pass1 //For now
-        else
+        // let pass2 = document.getElementById("rtpwordcreateacc").value;
+        // if (pass1 != pass2)
+        //     //Do something about it
+        //     pass = pass1 //For now
+        // else
             pass = pass1
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py';
@@ -66,17 +66,18 @@ if (typeof loginaccount === 'undefined') {
         HTTP.send(data);
         HTTP.onreadystatechange = function(){
             if(this.readyState == 4 && this.status==200) {
+                console.log("got here")
                 console.log(HTTP.responseText);
-                // const doc = document.documentElement;
-                // // doc.innerHTML = HTTP.responseText;
-                // setInnerHTML(doc, HTTP.responseText);
                 resp = JSON.parse(HTTP.responseText);
+                console.log(resp)
                 if (resp.createAccountSuccess) {
-                    USERNAME = usernm;
+                    console.log("created account successfully")
+                    USERNAME = username;
                     TOKEN = resp.token;
                     loggedin = true;
                     backtodashboard();
                 } else {
+                    console.log("failed to create account successfully")
                     el = document.getElementById("createaccountform");
                     const fail = document.createElement("div");
                     fail.classList.add("failedtologin");
