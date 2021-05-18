@@ -8,7 +8,7 @@ if (typeof makeroom === 'undefined') {
         const occupancy = room.occupancy;
         const capacity = room.capacity;
         const noiselevel = room.noiseLevel;
-        const volumepref = room.volumepref;
+        const volumepref = room.volumePref;
         // newroom.innerText = `Test room number ${roomnum}`;
     
     //     // newroom.innerText = `Test room number ${roomnum} \\`;

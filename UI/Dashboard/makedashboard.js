@@ -1,9 +1,10 @@
-
-
 if (typeof fetchroomlist === 'undefined') {
     fetchroomlist = () => {
         const HTTP = new XMLHttpRequest();
-        const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms';
+        let url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms';
+        if (typeof loggedin != 'undefined' && loggedin) {
+            url=`http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms&user=${USERNAME}&token=${TOKEN}`;
+        }
         HTTP.open("GET", url);
         HTTP.send();
 
