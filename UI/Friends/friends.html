@@ -1,57 +1,50 @@
 <head>
-	<link href="https//fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" /><link href="friends.css" rel="stylesheet" />
-	<title>Friends Dashboard</title>
-	<script src="../Friends/fetchfriends.js" defer></script>
+    <!-- Standard Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    
+    <title>Friends List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" href="../style.css">
+    
+    <script src="../Friends/friends.js" defer></script>
 </head>
 <body>
-	<p class="v5542">Friends</p>
-	<form action="/action_page.php">  <!-- change linking file -->
-		<button class="r16" type="button" value="Back to Dashboard" onclick="backtodashboard()">Back to Dashboard</button>
-	  <!-- <button class="r16" type="button" value="Back to Dashboard" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms'">Back to Dashboard</button> -->
-	  <!-- fix location, link back to the main page -->
-	</form> 
-	<div class="v55_43">
-		<div class="v55_44"></div>
-		<span class="v55_45">Elaine</span>
-		<span class="v55_48">Checked in to room 5-223</span>
-	</div>
-	<div class="v55_43">
-		<div class="v55_44"></div>
-		<span class="v55_45">Eugeniya</span>
-		<span class="v55_48">Checked in to room 5-223</span>
-	</div>
-	<div id="dashboard"></div>
-	<p class="v561">Friend Requests</p>
-	<div class="v55_43">
-		<div class="v55_44"></div>
-		<span class="v55_45">Ricardo</span>
-		<span class="v55_48">Pending</span>
-	</div>
-	<div class="v55_43">
-		<div class="v55_44"></div>
-		<span class="v55_45">Albert</span>
-		<button class="r17" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Accept</button>
-		<button class="r18" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Decline</button>
-	</div>
-	<div class="v55_43">
-		<div class="v55_44"></div>
-		<span class="v55_45">Vittal</span>
-		<button class="r17" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Accept</button>
-		<button class="r18" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task='addfreind''">Decline</button>
-	</div>
-	
-	
-	<p class="v561">Find Friends</p>
-	<!-- <p class="v563">Add a friend</p>
-	<div class="v564"></div>
-	<div class="v575"></div>
-	<p class="v574">Submit</p> -->
+    <div class="ui fixed inverted menu">
+        <div class="ui container">
+            <a href="#" class="item" onclick="backtodashboard()">Home</a>
+            <a href="#" class="item" onclick="friendspage()">Friends</a>
+            <a href="#" class="item" onclick="checkinpage()">Check In</a>
+            <a href="#" class="item" onclick="loginpage()">Login</a>
+        </div>
+    </div>
 
-	<form action="/action_page.php">  <!-- change linking file -->
-	  <label class="r11" for="friend">Type in your friend's username:</label><br>
-	  <input class="r12" type="text" id="pword" name="pword" value=""><br><br>
-	  <button class="r15" type="button" value="Submit" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=addfriend" >Submit</button>
-	  <!-- fix location, link back to the main page -->
-	</form> 
-
+    <div class="ui middle aligned center aligned grid">
+        <div class="column" method=POST action="../final/main.py">
+            <h1 class="ui center aligned icon header">
+                <i class="circular users icon"></i>
+                Friends
+            </h1>
+            <div class="ui raised segment" id="addfrienddiv">
+                <form class="ui large form" method="POST" action="../final/main.py"></form>
+                    <div class="ui action input">
+                        <input type="hidden" name="sender" value={name}>
+                        <input type="text" name="recipient" id="addfriendinput" placeholder="Add a new friend...">
+                        <button class="ui button" type="submit" name="action" value="send" onclick="addfriend()">Add</button>
+                    </div>
+                </form>
+            </div>
+            <div id="friendslistbox">
+                <h1 class="ui center aligned header">
+                    Friends List
+                </h1>
+            </div>
+            <div id="friendsrequestsbox">
+                <h1 class="ui center aligned header">
+                    Friend Requests
+                </h1>
+            </div>
+        </div>
+    </div>
 </body>

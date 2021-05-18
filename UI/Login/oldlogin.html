@@ -1,0 +1,37 @@
+<head>
+    <link rel="stylesheet" href="login.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Login Page</title>
+	<script src="../Login/login.js" defer></script>
+  </head>
+  <body>
+	<form action="/action_page.php">  <!-- change linking file -->
+		<button class="r16" type="button" value="Back to Dashboard" onclick="backtodashboard()">Back to Dashboard</button>
+	  <!-- <button class="r16" type="button" value="Back to Dashboard" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms'">Back to Dashboard</button> -->
+	  <!-- fix location, link back to the main page -->
+	</form> 
+  	<p class="random1">Login</p>
+  	<form action="/action_page.php" id="loginform">   <!-- change linking file -->
+	  <label class="r2" for="u_name">Username:</label><br>
+	  <input class="r3" type="text" id="u_name_login" name="u_name" value=""><br>
+	  <label class="r4" for="pword">Password:</label><br>
+	  <input class="r5" type="text" id="pword_login" name="pword" value=""><br><br>
+	  <button class="r6" type="button" value="Submit" onclick="loginaccount()">Submit</button>
+	  <!-- fix location, link back to the main page -->
+	</form> 
+
+    <p class="r8">Create New Account</p>
+  	<form action="/action_page.php" id="createaccountform">  <!-- change linking file -->
+	  <label class="r9" for="u_name">Username:</label><br>
+	  <input class="r10" type="text" id="u_name_createacc" name="u_name" value=""><br>
+	  <label class="r11" for="pword">Password:</label><br>
+	  <input class="r12" type="text" id="pword_createacc" name="pword" value=""><br><br>
+	  <label class="r13" for="rtpword">Repeat Password:</label><br>
+	  <input class="r14" type="text" id="rtpword_createacc" name="rtpword" value=""><br><br>
+	  <button class="r15" type="button" value="Submit" onclick="createaccount()">Submit</button>
+	  <!-- fix location, link back to the main page -->
+	</form> 
+
+  </body>

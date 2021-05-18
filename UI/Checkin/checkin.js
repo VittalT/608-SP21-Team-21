@@ -1,15 +1,13 @@
 
 if (typeof submitcheckin === 'undefined') {
-    submitcheckin = (roomno, hoursstay, volumepref) => {
+    submitcheckin = () => {
+        let roomnum = document.getElementById("roominput").value;
+        let hoursstay = document.getElementById("hoursinput").value;
+        let volumepref = document.getElementById("volumeprefinput").value;
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py';
         // TODO : add user
-        const data=`task=checkin&roomNum=${roomno}&hours=${hoursstay}&volumePref=${volumepref}&user=${USERNAME}&token=${TOKEN}`
-        // {
-        //     roomnum: roomno,
-        //     hours: hoursstay,
-        //     noiselevel: noise
-        // };
+        const data=`task=checkin&roomNum=${roomnum}&hours=${hoursstay}&volumePref=${volumepref}&user=${USERNAME}&token=${TOKEN}`;
         dataType='JSON';
         HTTP.open("POST", url);
         HTTP.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");

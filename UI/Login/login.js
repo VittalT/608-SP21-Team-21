@@ -1,8 +1,8 @@
 
 if (typeof loginaccount === 'undefined') {
     loginaccount = () => {
-        let usernm = document.getElementById("u_name_login").value;
-        let pass = document.getElementById("pword_login").value;
+        let usernm = document.getElementById("userlogin").value;
+        let pass = document.getElementById("pwordlogin").value;
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py';
         const data=`task=login&user=${usernm}&password=${pass}`
@@ -43,9 +43,9 @@ if (typeof loginaccount === 'undefined') {
     }
 
     createaccount = () => {
-        let username = document.getElementById("u_name_createacc").value;
-        let pass1 = document.getElementById("pword_createacc").value;
-        let pass2 = document.getElementById("rtpword_createacc").value;
+        let username = document.getElementById("usercreateacc").value;
+        let pass1 = document.getElementById("pwordcreateacc").value;
+        let pass2 = document.getElementById("rtpwordcreateacc").value;
         if (pass1 != pass2)
             //Do something about it
             pass = pass1 //For now
@@ -80,7 +80,7 @@ if (typeof loginaccount === 'undefined') {
                     el = document.getElementById("createaccountform");
                     const fail = document.createElement("div");
                     fail.classList.add("failedtologin");
-                    fail.innerText = "Incorrect username or password";
+                    fail.innerText = "Failed to Create Account";
                     el.appendChild(fail);
                 }
 

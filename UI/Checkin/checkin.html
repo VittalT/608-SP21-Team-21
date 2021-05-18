@@ -1,43 +1,60 @@
 <head>
-    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
-    <link href="checkin.css" rel="stylesheet" />
-    <title>Check in</title>
+    <!-- Standard Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    
+    <title>Room Check-In</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+    
     <script src="../Checkin/checkin.js" defer></script>
 </head>
 <body>
-    <!-- <p class="v584">CHECK IN</p> -->
-    <p class="v585">Checking in to room 5-223:</p>
-    <form action="/action_page.php">  <!-- change linking file -->
-      <button class="r16" type="button" value="Back to Dashboard" onclick="backtodashboard()">Back to Dashboard</button>
-      <!-- <button class="r16" type="button" value="Back to Dashboard" onclick="location.href = 'http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms'">Back to Dashboard</button> -->
-      <!-- fix location, link back to the main page -->
-    </form> 
-    
-    
-    
-    <p class="v33248">I plan to stay for:</p>
-    <input class="r3" type="text" id="hoursstay" name="hoursstay" value=""><br>
-    <p class="v33249">hours</p>
-    <p class="v593">I can tolerate:</p>
-
-    <div id='block-11' style='padding: 5px;'>
-    <label for='option-11' style=' padding: 2px; font-size: 1.2rem;'>
-      <input type='radio' name='option' value='6/24' id='option-11' style='transform: scale(1); margin-right: 8px; vertical-align: middle; margin-top: -2px;' />
-      loud</label>
-    <span id='result-11'></span>
-  </div>
-  <hr />
-
-  <div id='block-12' style='padding: 5px;'>
-    <label for='option-12' style=' padding: 5px; font-size: 1.2rem;'>
-      <input type='radio' name='option' value='6' id='option-12' style='transform: scale(1); margin-right: 8px; vertical-align: middle; margin-top: -2px;' />
-      quiet</label>
-    <span id='result-12'></span>
-  </div>
-  <hr />
-
-  <form action="/action_page.php">  <!-- change linking file -->
-      <button class="r15" type="button" value="Submit" onclick="submitcheckin()">Submit</button>
-      <!-- fix location, link back to the main page -->
-    </form> 
+    <div class="ui fixed inverted menu">
+        <div class="ui container">
+            <a href="#" class="item" onclick="backtodashboard()">Home</a>
+            <a href="#" class="item" onclick="friendspage()">Friends</a>
+            <a href="#" class="item" onclick="checkinpage()">Check In</a>
+            <a href="#" class="item" onclick="loginpage()">Login</a>
+        </div>
+    </div>
+    <div class="ui middle aligned center aligned grid">
+        <div class="column">
+            <h1 class="ui center aligned icon header">
+                <i class="circular building icon"></i>
+                Check-In
+            </h1>
+            <form class="ui large form" method="POST" action="../final/main.py">
+                <div class="ui stacked segment">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="building icon"></i>
+                            <input type="text" name="room" placeholder="Check in to..." id="roominput"></input>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="clock icon"></i>
+                            <input type="text" name="room" placeholder="# of hours..." id="hoursinput"></input>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <p>I prefer the others in my room to be:</p>
+                        <div class="ui left icon input">
+                            <i class="volume up icon"></i>
+                            <select class="ui dropdown" id="volumeprefinput">
+                                <option value="quiet">Quiet</option>
+                                <option value="medium">Medium</option>
+                                <option value="loud">I can tolerate any noise level</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="ui fluid large teal submit button" type="submit" onclick="submitcheckin()">Check in!</button></div>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
