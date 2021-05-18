@@ -4,12 +4,14 @@ os.chdir('/var/jail/home/team21/Server')
 server_path = '/var/jail/home/team21/Server'
 sys.path.append(server_path)
 sys.path.append(server_path + '/Accounts')
+sys.path.append(server_path + '/Friends')
 
 import requests
 import datetime
 from bs4 import BeautifulSoup
 
 from accounts import *
+from friends import *
 
 database = '../database.db'
 
@@ -33,7 +35,7 @@ def update_rooms(rooms=None):
             except:
                 continue
     with sqlite3.connect(database) as c:
-        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int, occupancy int, noiseLevel integer);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         for room in rooms:
             try:
                 c.execute('''INSERT INTO rooms VALUES (?, ?, ?, ?);''', (room, rooms[room], 0, 0))
@@ -49,8 +51,10 @@ def add_occupant(name, room, duration, volumePref):
 
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         User.validate(name)
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, endTime timestamp, volumePref integer, startTime timestamp);''')
-        c.execute('''INSERT INTO occupants VALUES (?, ?, ?, ?, ?);''', (name, room, duration, volumePref.value, datetime.datetime.now()))
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        startTime = datetime.datetime.now()
+        endTime = startTime + datetime.timedelta(hours = duration)
+        c.execute('''INSERT INTO occupants VALUES (?, ?, ?, ?, ?);''', (name, room, volumePref.value, startTime, endTime))
 
 def remove_occupant(name, room):
     """
@@ -59,59 +63,81 @@ def remove_occupant(name, room):
     """
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         User.validate(name)
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, endTime timestamp, volumePref integer, startTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         c.execute('''DELETE FROM occupants WHERE user = ? AND room = ?;''', (name, room))
 
 def user_in_rooms(name):
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, endTime timestamp, volumePref integer, startTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
 
 def get_room(name):
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         User.validate(name)
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, endTime timestamp, volumePref integer, startTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         if user_in_rooms(name):
-            return c.execute('''SELECT room FROM occupants WHERE user = ?;''', (name,)).fetchone()[0]
+            return c.execute('''SELECT room, endTime FROM occupants WHERE user = ? ORDER BY startTime DESC;''', (name,)).fetchone()
         else:
             return None
 
-def get_room_info_with_occupants(room):
+def get_room_info(room, name = None):
     """
     Gets the data associated with a given room number. Raises
     a KeyError if the room does not exist
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int, occupancy int, noiseLevel integer);''')
-        capacity, occupancy, noiseLevel = c.execute('''SELECT capacity, occupancy, noiseLevel FROM rooms WHERE name=?;''', (room,)).fetchone()
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        info = c.execute('''SELECT capacity, occupancy, noiseLevel FROM rooms WHERE name=?;''', (room,)).fetchone()
+        capacity, occupancy, noiseLevel = [int(data) for data in info]
         if capacity is None:
             raise KeyError(f"{room} is not a valid room")
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, endTime timestamp, volumePref integer, startTime timestamp);''')
+
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
         occupants = c.execute('''SELECT users.u, volumePref FROM occupants INNER JOIN users ON occupants.user = users.name WHERE occupants.room = ?;''', (room,)).fetchall()
+
     if len(occupants) != occupancy:
         # Someone didn't checkin / checkout properly!
         pass
+
+    all_friends = []
+    if name is not None:
+        all_friends = get_friends(name)
+    this_room_friends = list(set(all_friends) & {occupant[0] for occupant in occupants})
+
+    volumePrefFeq = {}
     for occupant in occupants:
-        pass
+        volumePref = int(occupant[1])
+        volumePrefFeq[volumePref] = volumePrefFeq.get(volumePref, 0) + 1
+    minVolumePref = min(volumePref for volumePref in volumePrefFeq)
+
     return {
         "roomNum": room,
         "capacity": capacity,
         "occupancy": occupancy,
-        "occupants": [occupant[0] for occupant in occupants],
-        "noiseLevel": noiseLevel,
-        "volumePref": "quiet" #TODO
+        # "occupants": [occupant[0] for occupant in occupants],
+        "noiseLevel": Noise(noiseLevel).str_form(),
+        "volumePref": {'volume': Noise(minVolumePref).str_form(), 'numPeople': volumePrefFeq[minVolumePref]},
+        "friends": this_room_friends
     }
 
-def get_room_info(room):
-    room_info = get_room_info_with_occupants(room)
-    del room_info["occupants"]
-    return room_info
+# def get_room_info(room):
+#     room_info = get_room_info_with_occupants(room)
+#     del room_info["occupants"]
+#     return room_info
 
-def get_all_rooms_info():
+def get_all_rooms_info(name = None):
     with sqlite3.connect(database) as c:
-        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity int, occupancy int, noiseLevel integer);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         rooms = c.execute('''SELECT name from rooms''').fetchall()
         rooms = [room[0] for room in rooms]
-        return [get_room_info(room) for room in rooms]
+        return [get_room_info(room, name) for room in rooms]
+
+def auto_checkout():
+    """
+    Auto checkout if time is after endTime
+    """
+    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''DELETE FROM occupants WHERE endTime > ?;''', (datetime.datetime.now(),))

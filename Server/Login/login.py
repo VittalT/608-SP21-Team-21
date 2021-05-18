@@ -12,9 +12,11 @@ from rooms import *
 database = '../database.db'
 import random
 
+MIN_TOKEN_LEN = 50
+MAX_TOKEN_LEN = 100
 def generateToken():
     token = ''
-    token_length = random.randint(50, 100)
+    token_length = random.randint(MIN_TOKEN_LEN, MAX_TOKEN_LEN)
     for i in range(token_length):
         index = random.randint(33, 126)
         token += chr(index)

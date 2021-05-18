@@ -40,38 +40,75 @@ def request_handler(request):
             with open("../UI/Login/login.html") as f:
                 body = f.read()
                 return body
+
         elif request["values"]["task"] == "checkinPage":
             with open("../UI/Checkin/checkin.html") as f:
                 body = f.read()
                 return body
+
         elif request["values"]["task"] == "friendsPage":
+            auto_checkout()
             with open("../UI/Friends/friends.html") as f:
                 body = f.read()
                 return body
+
         elif request["values"]["task"] == "dashboardPage":
+            update_rooms()
+            auto_checkout()
             with open("../UI/Dashboard/dashboard.html") as f:
                 body = f.read()
                 return body
+
         elif request["values"]["task"] == "preferences":
             name = request["values"]["user"]
-            return User.get_user(name)
+            token = request["values"]["token"]
+            if not correct_token(name, token):
+                return json.dumps({'requestPreferencesSuccess': False, 'status': 'Invalid token', 'volumePref': None})
 
-        elif request["values"]["task"] == "friendsWithRooms":
-            name = request["values"]["user"]
-            return json.dumps(get_friends_with_rooms(name))
+            user = User.get_user(name)
+            volumePref = user.info['volumePref']
+            return json.dumps({'requestPreferencesSuccess': True, 'status': 'Success, Logged in', 'volumePref': volumePref})
 
         elif request["values"]["task"] == "friends":
             name = request["values"]["user"]
-            return json.dumps(get_friends(name))
+            token = request["values"]["token"]
+            if not correct_token(name, token):
+                return json.dumps({'requestFriendSuccess': False, 'status': 'Invalid token', 'friends': None})
+
+            return json.dumps({'requestFriendSuccess': True, 'status': 'Success, Logged in', 'friends': get_friends_with_rooms(name)})
 
         elif request["values"]["task"] == "friendRequests":
             name = request["values"]["user"]
-            return get_friend_requests(name)
+            token = request["values"]["token"]
+            if not correct_token(name, token):
+                return json.dumps({'requestFriendRequestsSuccess': False, 'status': 'Invalid token', 'friendRequests': None})
+
+            return json.dumps({'requestFriendRequestsSuccess': True, 'status': 'Success, Logged in', 'friendRequests': get_friend_requests(name)})
 
         elif request["values"]["task"] == "rooms":
-            update_rooms()
-            all_rooms = get_all_rooms_info()
-            return json.dumps(all_rooms)
+            if "user" in request["values"]:
+                name = request["values"]["user"]
+                token = request["values"]["token"]
+                if not correct_token(name, token):
+                    return json.dumps({'requestRoomsSuccess': False, 'status': 'Invalid token', 'rooms': None})
+                all_rooms = get_all_rooms_info(name)
+                return json.dumps({'requestRoomsSuccess': True, 'status': 'Success, Not logged in', 'rooms': all_rooms})
+            else:
+                all_rooms = get_all_rooms_info()
+                return json.dumps({'requestRoomsSuccess': True, 'status': 'Success, Logged in', 'rooms': all_rooms})
+
+        elif request["values"]["task"] == "isCheckedIn":
+            name = request["values"]["user"]
+            token = request["values"]["token"]
+            if not correct_token(name, token):
+                return json.dumps({'isCheckedInSuccess': False, 'status': 'Invalid token', 'isCheckedIn': None, 'roomNum': None, 'until': None})
+
+            roomInfo = get_room(name)
+            if roomInfo is None:
+                return json.dumps({'isCheckedInSuccess': True, 'status': None, 'isCheckedIn': False, 'roomNum': None, 'until': None})
+
+            room, endTime = roomInfo
+            return json.dumps({'isCheckedInSuccess': True, 'status': None, 'isCheckedIn': True, 'roomNum': room, 'until': endTime})
 
         else:
             return KeyError("Unknown GET request")
@@ -96,75 +133,104 @@ def request_handler(request):
             if correct_password(name, password):
                 user = User.get_user(name)
                 token = generateToken()
-                user['token'] = token
+                user.info['token'] = token
                 user.update()
                 return json.dumps({"loginSuccess": True, 'token': token})
             else:
-                return json.dumps({"loginSuccess": False, 'token': ''})
+                return json.dumps({"loginSuccess": False, 'token': None})
 
         elif request["form"]["task"] == "preferences":
             name = request["form"]["user"]
-            noise_pref = Noise.str_to_enum(request["form"]["noise"])
-            return json.dumps(User.update_noise_pref(name, noise_pref))
+            token = request["form"]["token"]
+            if not correct_token(name, token):
+                return json.dumps({'updatePreferencesSuccess': False, 'status': 'Invalid token'})
+
+            volumePref = Noise.str_to_enum(request["form"]["volumePref"])
+            user = User.get_user(name)
+            user.info['volumePref'] = volumePref
+            user.update()
+            return json.dumps({'updatePreferencesSuccess': True, 'status': 'Success, Logged in'})
 
         elif request["form"]["task"] == "requestFriend":
             sender = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(sender, token):
-                return json.dumps({'requestFriendSuccess': False})
+                return json.dumps({'requestFriendSuccess': False, 'status': 'Invalid token'})
 
             recipient = request["form"]["friend"]
             try:
                 send_request(sender, recipient)
-                return json.dumps({'requestFriendSuccess': True})
+                return json.dumps({'requestFriendSuccess': True, 'status': 'Success, Logged in'})
             except:
-                json.dumps({'requestFriendSuccess': False})
+                json.dumps({'requestFriendSuccess': False, 'status': 'Could not request friend'})
 
         elif request["form"]["task"] == "acceptFriend":
             sender = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(sender, token):
-                return json.dumps({'addFriendSuccess': False})
+                return json.dumps({'addFriendSuccess': False, 'status': 'Invalid token'})
 
             recipient = request["form"]["friend"]
             try:
                 accept_request(sender, recipient)
-                return json.dumps({'addFriendSuccess': True})
+                return json.dumps({'addFriendSuccess': True, 'status': 'Success, Logged in'})
             except:
-                json.dumps({'addFriendSuccess': False})
+                json.dumps({'addFriendSuccess': False, 'status': 'Could not accept friend'})
 
         elif request["form"]["task"] == "removeFriend":
             sender = request["form"]["user"]
             token = request["form"]["token"]
             if not correct_token(sender, token):
-                return json.dumps({'removeFriendSuccess': False})
+                return json.dumps({'removeFriendSuccess': False, 'status': 'Invalid token'})
 
             recipient = request["form"]["friend"]
             try:
                 remove_friend(sender, recipient)
-                return json.dumps({'removeFriendSuccess': True})
+                return json.dumps({'removeFriendSuccess': True, 'status': 'Success, Logged in'})
             except:
-                json.dumps({'removeFriendSuccess': False})
+                json.dumps({'removeFriendSuccess': False, 'status': 'Could not remove friend'})
 
         elif request["form"]["task"] == "checkin":
-            update_rooms()
             name = request["form"]["user"]
+            token = request["form"]["token"]
+            if not correct_token(name, token):
+                return json.dumps({'checkinSuccess': False, 'status': 'Invalid token'})
+
             room = request["form"]["roomNum"]
-            print(name, room)
-            add_occupant(name, room)
-            with open("../UI/Dashboard/dashboard.html") as f:
-                body = f.read()
-                return body
+            duration = request["form"]["duration"]
+            volumePref = Noise.str_to_enum(request["form"]["volumePref"])
+            try:
+                add_occupant(name, room, duration, volumePref)
+                return json.dumps({'checkinSuccess': True, 'status': None})
+            except:
+                return json.dumps({'checkinSuccess': False, 'status': 'Could not checkin'})
 
         elif request["form"]["task"] == "checkout":
-            update_rooms()
             name = request["form"]["user"]
+            token = request["form"]["token"]
+            if not correct_token(name, token):
+                return json.dumps({'checkoutSuccess': False, 'status': 'Invalid token'})
+
             room = request["form"]["roomNum"]
-            print(name, room)
-            return remove_occupant(name, room)
+            try:
+                remove_occupant(name, room)
+                return json.dumps({'checkoutSuccess': True, 'status': None})
+            except:
+                return json.dumps({'checkoutSuccess': False, 'status': 'Could not checkout'})
 
         elif request["form"]["task"] == "updateRooms":
-            update_rooms()
+            try:
+                update_rooms()
+                return json.dumps({'updateRoomsSuccess': True, 'status': None})
+            except:
+                return json.dumps({'updateRoomsSuccess': False, 'status': 'Could not update rooms from Atlas'})
+
+        elif request["form"]["task"] == "autoCheckout":
+            try:
+                auto_checkout()
+                return json.dumps({'autoCheckoutSuccess': True, 'status': None})
+            except:
+                return json.dumps({'autoCheckoutSuccess': False, 'status': 'Could not auto checkout'})
 
         else:
             return KeyError("Unknown POST request")
