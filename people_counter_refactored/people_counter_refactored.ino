@@ -52,8 +52,8 @@ static int SOMEONE = 1;
 static int LEFT = 0;
 static int RIGHT = 1;
 
-static int DIST_THRESHOLD_MAX[] = {0, 0};   // treshold of the two zones
-static int MIN_DISTANCE[] = {0, 0};
+static int DIST_THRESHOLD_MAX[] = {400, 400};   // treshold of the two zones //HERE
+static int MIN_DISTANCE[] = {30, 30}; //HERE
 
 static int PathTrack[] = {0,0,0,0};
 static int PathTrackFillingSize = 1; // init this to 1 as we start from state where nobody is any of the zones
@@ -61,8 +61,9 @@ static int LeftPreviousStatus = NOBODY;
 static int RightPreviousStatus = NOBODY;
 
 //TODO: CALIBRATION
-static int center[2] = {87,87}; /* zone1, zone0: center of the two zones */  
-/* 87 */
+static int center[2] = {84,87}; /* zone1, zone0: center of the two zones */  //HERE
+/* Works: 87, 85, 84
+Faulty: 50, 80, 83, 88, 89 90, 150 */
 static int Zone = 0;
 static int old_PplCounter = 0;
 static int PplCounter = 0;
@@ -134,12 +135,13 @@ void zones_calibration(){
 
 void loop(){
 //    getDistancetest();
-    delay(500);
+    delay(50);
     getDistance(Zone);
     
     processPeopleCountingData(distance, Zone);
     Serial.println(PplCounter);
     if (PplCounter!= old_PplCounter){ //only posts when the occupancy changes
+        Serial.println("People count changed!");
         post_to_server();
         old_PplCounter = PplCounter;
     }
@@ -153,15 +155,19 @@ void post_to_server(){
     request[0] = '\0'; //set 0th byte to null
     int offset = 0; //reset offset variable for sprintf-ing
     // TODO
-    offset += sprintf(request + offset, "POST http://608dev-2.net/sandbox/sc/team21/Server/PLACEHOLDER.py HTTP/1.1\r\n");
+    offset += sprintf(request + offset, "POST http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py HTTP/1.1\r\n"); //TO CHANGE, TEMP
     offset += sprintf(request + offset, "Host: 608dev-2.net\r\n");
-    offset += sprintf(request + offset, "Content-Type: application/x-www-form-urlencoded\r\n");
+    offset += sprintf(request + offset, "Content-Type: application/JSON\r\n");
     int PplCounter_len = 1;
-    if (PplCounter>=10){
+    if (PplCounter>=10 || PplCounter <= 0){
       PplCounter_len = 2;
     }
-    offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", 24+strlen(room)+PplCounter_len);
-    offset += sprintf(request + offset, "{\"room\":\"%s\", \"occupancy\":\"%d\"}\"\r\n", room, PplCounter);
+    if (PplCounter <= -10){
+      PplCounter_len = 3;
+    }
+//    PplCounter_len = strlen(char(PplCounter));
+    offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", 25+strlen(room)+PplCounter_len);
+    offset += sprintf(request + offset, "{\"room\":\"%s\",\"occupancy\":\"%d\"}\r\n", room, PplCounter);
     Serial.println(request);
     
     do_http_request("608dev-2.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
@@ -189,7 +195,7 @@ void getDistance(int current_zone)
   Serial.print("Zone ");
   Serial.print(current_zone);
   Serial.print(", distance: ");
-  Serial.println(distance/10.00);
+  Serial.println(distance);
 }
 
 
@@ -284,5 +290,10 @@ void processPeopleCountingData(int16_t Distance, uint8_t zone) {
       // 0 1 3 2 ==> if next is 0 : check if exit
       PathTrack[PathTrackFillingSize-1] = AllZonesCurrentStatus;
     }
+    Serial.println("Pathtrack: ");
+    Serial.println(PathTrack[0]);
+    Serial.println(PathTrack[1]);
+    Serial.println(PathTrack[2]);
+    Serial.println(PathTrack[3]);
   }
 }
