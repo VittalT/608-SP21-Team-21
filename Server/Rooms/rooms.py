@@ -38,7 +38,7 @@ def update_rooms(rooms=None):
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         for room in rooms:
             try:
-                c.execute('''INSERT INTO rooms VALUES (?, ?, ?, ?);''', (room, rooms[room], 0, 0))
+                c.execute('''INSERT INTO rooms VALUES (?, ?, ?, ?);''', (room, rooms[room], 0, 4))
             except sqlite3.IntegrityError:
                 c.execute('''UPDATE rooms SET capacity=? WHERE name=?;''', (rooms[room], room))
 
