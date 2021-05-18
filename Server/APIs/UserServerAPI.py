@@ -86,6 +86,8 @@ def request_handler(request):
             return json.dumps({'requestFriendRequestsSuccess': True, 'status': 'Success, Logged in', 'friendRequests': get_friend_requests(name)})
 
         elif request["values"]["task"] == "rooms":
+            update_rooms()
+            auto_checkout()
             if "user" in request["values"]:
                 name = request["values"]["user"]
                 token = request["values"]["token"]

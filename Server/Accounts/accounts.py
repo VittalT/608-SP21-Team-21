@@ -52,7 +52,7 @@ class User:
         Getter function for info attribute
         """
         if self._info is None:
-            self._info = {'password': '', 'token': '', 'volumePref': Noise.no_pref}
+            self._info = {'password': '', 'token': '', 'volumePref': Noise.noPref}
         return self._info
 
     def get_volume_pref(self):
@@ -65,7 +65,7 @@ class User:
         a TypeError if input is not a string
         """
         if value is None:
-            value = {'password': '', 'token': '', 'volumePref': Noise.no_pref}
+            value = {'password': '', 'token': '', 'volumePref': Noise.noPref}
 
         if not (isinstance(value, dict) and isinstance(value['volumePref'], Noise)
                 and isinstance(value['password'], str) and isinstance(value['token'], str)):
