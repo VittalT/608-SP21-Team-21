@@ -92,6 +92,10 @@ def update_room_noiseLevel(room, noiseLevel):
             '''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel, room))
 
+def get_friends_with_rooms(name):
+    friends = get_friends(name)
+    return [{'name': friend, 'inRoom': get_room(friend) is not None, 'room': get_room(friend)} for friend in friends]
+
 def get_room_info(room, name = None):
     """
     Gets the data associated with a given room number. Raises

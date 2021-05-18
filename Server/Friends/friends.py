@@ -4,10 +4,8 @@ os.chdir('/var/jail/home/team21/Server')
 server_path = '/var/jail/home/team21/Server'
 sys.path.append(server_path)
 sys.path.append(server_path + '/Accounts')
-sys.path.append(server_path + '/Rooms')
 
 from accounts import *
-from rooms import *
 
 database = '../database.db'
 
@@ -76,7 +74,6 @@ def get_friend_requests(name):
                         'received': {friend[0] : friend[1] for friend in received}}
         return all_requests
 
-
 def get_friends(name):
     """
     Returns a list containing all friends.
@@ -92,7 +89,3 @@ def get_friends(name):
         received = c.execute('''SELECT friends.sender FROM friends WHERE friends.recipient=? AND friends.status = ?;''', (name, "accepted")).fetchall()
         friends = [friend[0] for friend in set(sent + received)]
         return friends
-
-def get_friends_with_rooms(name):
-    friends = get_friends(name)
-    return [{'name': friend, 'inRoom': get_room(friend) is not None, 'room': get_room(friend)} for friend in friends]
