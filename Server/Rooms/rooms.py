@@ -106,7 +106,7 @@ def get_room_info(room, name = None):
         all_friends = get_friends(name)
     this_room_friends = list(set(all_friends) & {occupant[0] for occupant in occupants})
 
-    volumePrefFeq = {}
+    volumePrefFeq = {4: 0}
     for occupant in occupants:
         volumePref = int(occupant[1])
         volumePrefFeq[volumePref] = volumePrefFeq.get(volumePref, 0) + 1
