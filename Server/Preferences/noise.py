@@ -7,30 +7,33 @@ def request_handler(request):
     return os.path.dirname(os.path.abspath(os.getcwd()))
 
 class Noise(Enum):
-    no_pref = 0
     quiet = 1
     moderate = 2
     loud = 3
+    noPref = 4
+    unknown = 5
 
     def str_form(self):
-        if self == Noise.no_pref:
-            return 'has no noise preference'
-        elif self == Noise.quiet:
-            return 'prefers quiet noise levels'
+        if self == Noise.quiet:
+            return 'quiet'
         elif self == Noise.moderate:
-            return 'prefers moderate noise levels'
+            return 'moderate'
         elif self == Noise.loud:
-            return 'prefers loud noise levels'
+            return 'loud'
+        elif self == Noise.noPref:
+            return 'noPref'
         else:
-            return 'has an unknown preference'
+            return 'unknown'
 
     @staticmethod
     def str_to_enum(noise):
-        if noise == 'no_pref':
-            return Noise.no_pref
-        elif noise == 'quiet':
+        if noise == 'quiet':
             return Noise.quiet
         elif noise == 'moderate':
             return Noise.moderate
         elif noise == 'loud':
             return Noise.loud
+        if noise == 'noPref':
+            return Noise.noPref
+        else:
+            return Noise.unknown

@@ -72,14 +72,14 @@ def get_friend_requests(name):
         # received = c.execute('''SELECT users.u, friends.status FROM friends INNER JOIN users ON friends.sender=users.name WHERE friends.recipient=?;''', (name,)).fetchall()
         sent = c.execute('''SELECT friends.recipient, friends.status FROM friends WHERE friends.sender=?;''', (name,)).fetchall()
         received = c.execute('''SELECT friends.sender, friends.status FROM friends WHERE friends.recipient=?;''', (name,)).fetchall()
-        all_requests = {'Sent': {friend[0] : friend[1] for friend in sent},
-                        'Received': {friend[0] : friend[1] for friend in received}}
+        all_requests = {'sent': {friend[0] : friend[1] for friend in sent},
+                        'received': {friend[0] : friend[1] for friend in received}}
         return all_requests
 
 
 def get_friends(name):
     """
-    Returns a dictionary containing all friends.
+    Returns a list containing all friends.
     Raises a KeyError if user does not exist
     """
     sqlite3.register_converter("user", User.convert_user)
@@ -95,4 +95,4 @@ def get_friends(name):
 
 def get_friends_with_rooms(name):
     friends = get_friends(name)
-    return [{'name': friend, 'room': get_room(friend)} for friend in friends]
+    return [{'name': friend, 'inRoom': get_room(friend) is not None, 'room': get_room(friend)} for friend in friends]
