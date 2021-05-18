@@ -11,7 +11,7 @@ if (typeof fetchroomlist === 'undefined') {
         HTTP.onreadystatechange = function(){
             if(this.readyState == 4 && this.status==200) {
                 console.log(HTTP.responseText);
-                roomlist = JSON.parse(HTTP.responseText);
+                roomlist = JSON.parse(HTTP.responseText).rooms;
                 for (let i =0 ; i<roomlist.length; i++) {
                     makeroom(roomlist[i]);
                 }
@@ -227,7 +227,7 @@ if (typeof fetchroomlist === 'undefined') {
                                 "</div>" +
                                 `<div class="column">` + 
                                     `<i class="volume up icon"></i>` +
-                                    `<p>` + `Volume Preferences: <b>${volumepref}</b>` + `</p>` +
+                                    `<p>` + `Volume Preferences: <b>${volumepref.volume}</b>` + `</p>` +
                                 "</div>" +
                             "</div>" +
                             friendsdiv +
