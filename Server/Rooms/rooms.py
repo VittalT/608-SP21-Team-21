@@ -7,13 +7,21 @@ sys.path.append(server_path + '/Accounts')
 sys.path.append(server_path + '/Friends')
 
 import requests
-import datetime
+from datetime import datetime, timedelta
+from dateutil import tz
 from bs4 import BeautifulSoup
 
 from accounts import *
 from friends import *
 
 database = '../database.db'
+
+def currentEasternTime():
+    UTC = tz.gettz('UTC')
+    ET = tz.gettz('America/New_York')
+    dt_utc = datetime.utcnow().replace(tzinfo=UTC)
+    dt_est = dt_utc.astimezone(ET)
+    return dt_est
 
 def update_rooms(rooms=None):
     """
@@ -38,10 +46,21 @@ def update_rooms(rooms=None):
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         for room in rooms:
             try:
-                c.execute('''INSERT INTO rooms VALUES (?, ?, ?, ?);''', (room, rooms[room], 0, 4))
+                c.execute('''INSERT INTO rooms VALUES (?, ?, ?, ?);''', (room, rooms[room], 0, 1))
             except sqlite3.IntegrityError:
                 c.execute('''UPDATE rooms SET capacity=? WHERE name=?;''', (rooms[room], room))
 
+def exists_room(room):
+    with sqlite3.connect(database) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        return c.execute('''SELECT EXISTS (SELECT 1 FROM rooms WHERE name = ?);''', (room,)).fetchone()[0]
+
+def validate_room(room):
+    with sqlite3.connect(database) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        if not exists_room(room):
+            raise KeyError(f"{room} is not a valid room")
+        return True
 
 def add_occupant(name, room, duration, volumePref):
     """
@@ -49,11 +68,12 @@ def add_occupant(name, room, duration, volumePref):
     is not a User object and a KeyError if room does not exist
     """
 
-    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+    with sqlite3.connect(database) as c:
         User.validate(name)
+        validate_room(room)
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
-        startTime = datetime.datetime.now()
-        endTime = startTime + datetime.timedelta(hours = duration)
+        startTime = currentEasternTime()
+        endTime = startTime + timedelta(hours = duration)
         c.execute('''INSERT INTO occupants VALUES (?, ?, ?, ?, ?);''', (name, room, volumePref.value, startTime, endTime))
 
 def remove_occupant(name, room):
@@ -61,8 +81,9 @@ def remove_occupant(name, room):
     Adds an occupant to a room. Raises a TypeError if occupant
     is not a User object and a KeyError if room does not exist
     """
-    with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+    with sqlite3.connect(database) as c:
         User.validate(name)
+        validate_room(room)
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         c.execute('''DELETE FROM occupants WHERE user = ? AND room = ?;''', (name, room))
 
@@ -76,25 +97,36 @@ def get_room(name):
         User.validate(name)
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         if user_in_rooms(name):
-            return c.execute('''SELECT room, endTime FROM occupants WHERE user = ? ORDER BY startTime DESC;''', (name,)).fetchone()
+            room, endTime = c.execute('''SELECT room, endTime FROM occupants WHERE user = ? ORDER BY startTime DESC;''', (name,)).fetchone()
+            endTimeFormatted = endTime.strftime("%I:%M %p Eastern Time")
+            return room, endTimeFormatted
         else:
             return None
 
 def update_room_occupancy(room, occupancy):
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        validate_room(room)
         c.execute('''UPDATE rooms SET occupancy=? WHERE name=?;''', (occupancy, room))
 
 
 def update_room_noiseLevel(room, noiseLevel):
     with sqlite3.connect(database) as c:
-        c.execute(
-            '''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        validate_room(room)
         c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel, room))
 
 def get_friends_with_rooms(name):
     friends = get_friends(name)
-    return [{'name': friend, 'inRoom': get_room(friend) is not None, 'room': get_room(friend)} for friend in friends]
+    friends_with_rooms = []
+    for friend in friends:
+        friend_info = {'name': friend, 'inRoom': False, 'room': None, 'until': None}
+        info = get_room(friend)
+        if info is not None:
+            room, until = info
+            friend_info = {'name': friend, 'inRoom': True, 'room': room, 'until': until}
+        friends_with_rooms.append(friend_info)
+    return friends_with_rooms
 
 def get_room_info(room, name = None):
     """
@@ -104,6 +136,7 @@ def get_room_info(room, name = None):
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        validate_room(room)
         info = c.execute('''SELECT capacity, occupancy, noiseLevel FROM rooms WHERE name=?;''', (room,)).fetchone()
         capacity, occupancy, noiseLevel = [int(data) for data in info]
         if capacity is None:
@@ -120,7 +153,7 @@ def get_room_info(room, name = None):
     all_friends = []
     if name is not None:
         all_friends = get_friends(name)
-    this_room_friends = list(set(all_friends) & {occupant[0] for occupant in occupants})
+    this_room_friends = list(set(all_friends) & {occupant[0].name for occupant in occupants})
 
     volumePrefFeq = {4: 0}
     for occupant in occupants:
@@ -132,6 +165,7 @@ def get_room_info(room, name = None):
         "roomNum": room,
         "capacity": capacity,
         "occupancy": occupancy,
+        "numCheckedIn": len(occupants),
         # "occupants": [occupant[0] for occupant in occupants],
         "noiseLevel": Noise(noiseLevel).str_form(),
         "volumePref": {'volume': Noise(minVolumePref).str_form(), 'numPeople': volumePrefFeq[minVolumePref]},
@@ -156,4 +190,4 @@ def auto_checkout():
     """
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
-        c.execute('''DELETE FROM occupants WHERE endTime > ?;''', (datetime.datetime.now(),))
+        c.execute('''DELETE FROM occupants WHERE endTime < ?;''', (currentEasternTime(),))

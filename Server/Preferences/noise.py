@@ -21,7 +21,7 @@ class Noise(Enum):
         elif self == Noise.loud:
             return 'loud'
         elif self == Noise.noPref:
-            return 'noPref'
+            return 'none'
         else:
             return 'unknown'
 
@@ -33,7 +33,7 @@ class Noise(Enum):
             return Noise.moderate
         elif noise == 'loud':
             return Noise.loud
-        if noise == 'noPref':
+        if noise == 'none':
             return Noise.noPref
         else:
             return Noise.unknown

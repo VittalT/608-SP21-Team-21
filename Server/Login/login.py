@@ -18,11 +18,8 @@ POSS_TOKEN_CHARS = string.ascii_letters + string.digits
 MIN_TOKEN_LEN = 50
 MAX_TOKEN_LEN = 100
 def generateToken():
-    token = ''
     token_length = random.randint(MIN_TOKEN_LEN, MAX_TOKEN_LEN)
-    for i in range(token_length):
-        index = random.choice(POSS_TOKEN_CHARS)
-        token += chr(index)
+    token = ''.join(random.choice(POSS_TOKEN_CHARS) for _ in range(token_length))
     return token
 
 def correct_password(name, password):
