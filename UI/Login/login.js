@@ -61,12 +61,12 @@ if (typeof loginaccount === 'undefined') {
         // };
         console.log(data);
         dataType='JSON';
-        HTTP.open("POST", url);
+        HTTP.open("POST", url, true);
         HTTP.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
         HTTP.send(data);
+        console.log("got here")
         HTTP.onreadystatechange = function(){
             if(this.readyState == 4 && this.status==200) {
-                console.log("got here")
                 console.log(HTTP.responseText);
                 resp = JSON.parse(HTTP.responseText);
                 console.log(resp)

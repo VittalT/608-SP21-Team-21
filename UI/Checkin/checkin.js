@@ -7,7 +7,8 @@ if (typeof submitcheckin === 'undefined') {
         const HTTP = new XMLHttpRequest();
         const url='http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py';
         // TODO : add user
-        const data=`task=checkin&roomNum=${roomnum}&hours=${hoursstay}&volumePref=${volumepref}&user=${USERNAME}&token=${TOKEN}`;
+        const data=`task=checkin&roomNum=${roomnum}&duration=${hoursstay}&volumePref=${volumepref}&user=${USERNAME}&token=${TOKEN}`;
+        console.log(data)
         dataType='JSON';
         HTTP.open("POST", url);
         HTTP.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");

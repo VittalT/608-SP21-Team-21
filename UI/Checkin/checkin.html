@@ -12,13 +12,13 @@
     
     <script src="../Checkin/checkin.js" defer></script>
 </head>
-<body>
+<body onload="hidenavbarbuttons()">
     <div class="ui fixed inverted menu">
         <div class="ui container">
             <a href="#" class="item" onclick="backtodashboard()">Home</a>
             <a href="#" class="item" onclick="friendspage()">Friends</a>
             <a href="#" class="item" onclick="checkinpage()">Check In</a>
-            <a href="#" class="item" onclick="loginpage()">Login</a>
+            <a href="#" class="item" onclick="loginpage()" id="navbarloginbutton">Login</a>
         </div>
     </div>
     <div class="ui middle aligned center aligned grid">
@@ -27,7 +27,7 @@
                 <i class="circular building icon"></i>
                 Check-In
             </h1>
-            <form class="ui large form" method="POST" action="../final/main.py">
+            <div class="ui large form">
                 <div class="ui stacked segment">
                     <div class="field">
                         <div class="ui left icon input">
@@ -53,9 +53,9 @@
                             </select>
                         </div>
                     </div>
-                    <button class="ui fluid large teal submit button" type="submit" onclick="submitcheckin()">Check in!</button></div>
+                    <button class="ui fluid large teal submit button" onclick="submitcheckin()">Check in!</button></div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </body>

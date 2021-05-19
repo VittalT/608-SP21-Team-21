@@ -5,6 +5,7 @@ if (typeof fetchroomlist === 'undefined') {
         if (typeof loggedin != 'undefined' && loggedin) {
             url=`http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=rooms&user=${USERNAME}&token=${TOKEN}`;
         }
+        // console.log(url)
         HTTP.open("GET", url);
         HTTP.send();
 
@@ -39,12 +40,13 @@ if (typeof fetchroomlist === 'undefined') {
 
     makereservationbutton = () => {
         const reservationdiv = document.getElementById("reservation");
+        isCheckedIn = false;
         if (typeof loggedin === 'undefined' || !loggedin) {
             // do nothing to the div
         }
         else {
             const HTTP = new XMLHttpRequest();
-            const url=`http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=ischeckedin&user=${USERNAME}&token=${TOKEN}`;
+            const url=`http://608dev-2.net/sandbox/sc/team21/Server/APIs/UserServerAPI.py?task=isCheckedIn&user=${USERNAME}&token=${TOKEN}`;
             HTTP.open("GET", url);
             HTTP.send();
             HTTP.onreadystatechange = function(){
@@ -52,16 +54,17 @@ if (typeof fetchroomlist === 'undefined') {
                     console.log(HTTP.responseText);
                     resp = JSON.parse(HTTP.responseText);
                     if (resp.isCheckedIn) {
+                        isCheckedIn = true;
                         const currReservation = document.createElement("div");
                         currReservation.classList.add("currReservation");
                         reservationRoomNum = resp.roomNum;
-                        currReservation.innerText = `You are currently checked in to room ${reservationRoomNum}, until ${resp.until}.`;
+                        currReservation.innerHTML = `<b> You are currently checked in to room ${reservationRoomNum}, until ${resp.until}.</b>`;
                         reservationdiv.appendChild(currReservation);
                         const checkoutButton = document.createElement("div");
-                        checkoutButton.innerHTML = `<button class="checkoutButton"
+                        checkoutButton.innerHTML = `<button class="ui basic button"
                         type="button"
                         value="Check Out"
-                        onclick="checkout()"
+                        onclick="submitcheckout()"
                         > 
                             <i class="icon user"></i>
                             Check Out 
@@ -89,6 +92,7 @@ if (typeof fetchroomlist === 'undefined') {
                 console.log(HTTP.responseText);
                 resp = JSON.parse(HTTP.responseText);
                 if (resp.checkoutSuccess) {
+                    isCheckedIn = false;
                     backtodashboard();
                 } else {
                     const fail = document.createElement("div");
@@ -108,10 +112,9 @@ if (typeof fetchroomlist === 'undefined') {
         HTTP.send();
         HTTP.onreadystatechange = function(){
             if(this.readyState == 4 && this.status==200) {
-                console.log(HTTP.responseText);
                 const doc = document.documentElement;
-                // doc.innerHTML = HTTP.responseText;
-                setInnerHTML(doc, HTTP.responseText)
+                setInnerHTML(doc, HTTP.responseText);
+                hidenavbarbuttons();
             }
         }
     }
@@ -127,10 +130,9 @@ if (typeof fetchroomlist === 'undefined') {
             HTTP.send();
             HTTP.onreadystatechange = function(){
                 if(this.readyState == 4 && this.status==200) {
-                    console.log(HTTP.responseText);
                     const doc = document.documentElement;
-                    // doc.innerHTML = HTTP.responseText;
-                    setInnerHTML(doc, HTTP.responseText)
+                    setInnerHTML(doc, HTTP.responseText);
+                    hidenavbarbuttons();
                 }
             }
         }
@@ -147,13 +149,9 @@ if (typeof fetchroomlist === 'undefined') {
             HTTP.send();
             HTTP.onreadystatechange = function(){
                 if(this.readyState == 4 && this.status==200) {
-                    console.log(HTTP.responseText);
                     const doc = document.documentElement;
-                    // doc.innerHTML = HTTP.responseText;
                     setInnerHTML(doc, HTTP.responseText);
-                    // TODO: below code to be implemented after the Check In page is created.
-                    //roomnum = document.getElementById("roomnum")
-                    //roomnum.innerText = roomnum
+                    hidenavbarbuttons();
                 }
             }
         }
@@ -168,7 +166,8 @@ if (typeof fetchroomlist === 'undefined') {
             if(this.readyState == 4 && this.status==200) {
                 console.log(HTTP.responseText);
                 const doc = document.documentElement;
-                setInnerHTML(doc, HTTP.responseText)
+                setInnerHTML(doc, HTTP.responseText);
+                hidenavbarbuttons();
             }
         }
     }
@@ -176,8 +175,8 @@ if (typeof fetchroomlist === 'undefined') {
 
     setInnerHTML = function(elm, html) {
         elm.innerHTML = html;
-        console.log(document.documentElement.innerHTML);
-        console.log(Array.from(document.head.querySelectorAll("script")));
+        // console.log(document.documentElement.innerHTML);
+        // console.log(Array.from(document.head.querySelectorAll("script")));
         Array.from(document.head.querySelectorAll("script")).forEach( oldScript => {
         const newScript = document.createElement("script");
         Array.from(oldScript.attributes)
@@ -206,15 +205,33 @@ if (typeof fetchroomlist === 'undefined') {
         const noiselevel = room.noiseLevel;
         const volumepref = room.volumePref;
         const friendsinroom = room.friends;
+        console.log(friendsinroom)
         let friendsdiv = "";
-        // if (friendsinroom.length > 0) {
-        //     friendsdiv = `<div class="header"> Friends in this Room: `
-        //     let i = 0;
-        //     for (; i< friendsinroom.length-1; i++) {
-        //         friendsdiv = friendsdiv + `${friendsinroom[i].name}, `
-        //     }
-        //     friendsdiv = friendsdiv + `${friendsinroom[i].name} </div>`
-        // }
+        if (friendsinroom.length > 0) {
+            friendsdiv = `<div class="header"> Friends in this Room: `
+            let i = 0;
+            for (; i< friendsinroom.length-1; i++) {
+                friendsdiv = friendsdiv + `${friendsinroom[i]}, `
+            }
+            friendsdiv = friendsdiv + `${friendsinroom[i]} </div>`
+        }
+
+        let volprefdiv = `<p>` + `Volume Preferences: <b>${volumepref.volume}</b>` + `</p>`
+        if (volumepref.volume != "none") {
+            let numpeople = volumepref.numPeople;
+            if (numpeople > 1) {
+                volprefdiv = `<p>` + `${numpeople} people prefer: <b>${volumepref.volume}</b>` + `</p>`
+            } else {
+                volprefdiv = `<p>` + `1 person prefers: <b>${volumepref.volume}</b>` + `</p>`
+            }
+        }
+        let checkinbutton = (typeof isCheckedIn === 'undefined' || !isCheckedIn) ? 
+        `<button class="ui fluid medium teal submit button"
+            type="button"
+            value="Check In"
+            onclick="checkinpage()"
+        > Check In </button>` : "";
+        
         newroom.innerHTML = "<h2>" + `Room ${roomnum}` + "</h2>" +
                             `<div class="ui equal width grid">` +
                                 `<div class="column">` +
@@ -227,16 +244,21 @@ if (typeof fetchroomlist === 'undefined') {
                                 "</div>" +
                                 `<div class="column">` + 
                                     `<i class="volume up icon"></i>` +
-                                    `<p>` + `Volume Preferences: <b>${volumepref.volume}</b>` + `</p>` +
+                                    volprefdiv +
                                 "</div>" +
                             "</div>" +
                             friendsdiv +
-                            `<button class="ui fluid medium teal submit button"
-                                type="button"
-                                value="Check In"
-                                onclick="checkinpage()"
-                            > Check In </button>`
+                            checkinbutton
         dashBoard.appendChild(newroom);
+    }
+
+    hidenavbarbuttons = () => {
+        if (typeof loggedin === 'undefined' || !loggedin) {
+            // not logged in, so show login button
+        } else {
+            // logged in, so hide login button
+            document.getElementById("navbarloginbutton").style.display = "none";
+        }
     }
 }
 
