@@ -71,7 +71,7 @@ def add_occupant(name, room, duration, volumePref):
     with sqlite3.connect(database) as c:
         User.validate(name)
         validate_room(room)
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         startTime = currentEasternTime()
         endTime = startTime + timedelta(hours = duration)
         c.execute('''INSERT INTO occupants VALUES (?, ?, ?, ?, ?);''', (name, room, volumePref.value, startTime, endTime))
@@ -84,18 +84,18 @@ def remove_occupant(name, room):
     with sqlite3.connect(database) as c:
         User.validate(name)
         validate_room(room)
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         c.execute('''DELETE FROM occupants WHERE user = ? AND room = ?;''', (name, room))
 
 def user_in_rooms(name):
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
 
 def get_room(name):
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         User.validate(name)
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         if user_in_rooms(name):
             room, endTime = c.execute('''SELECT room, endTime FROM occupants WHERE user = ? ORDER BY startTime DESC;''', (name,)).fetchone()
             endTimeFormatted = endTime.strftime("%I:%M %p Eastern Time")
@@ -114,7 +114,7 @@ def update_room_noiseLevel(room, noiseLevel):
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         validate_room(room)
-        c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel, room))
+        c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel.value, room))
 
 def get_friends_with_rooms(name):
     friends = get_friends(name)
@@ -142,7 +142,7 @@ def get_room_info(room, name = None):
         if capacity is None:
             raise KeyError(f"{room} is not a valid room")
 
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         c.execute('''CREATE TABLE IF NOT EXISTS users (name text UNIQUE, u user);''')
         occupants = c.execute('''SELECT users.u, volumePref FROM occupants INNER JOIN users ON occupants.user = users.name WHERE occupants.room = ?;''', (room,)).fetchall()
 
@@ -189,5 +189,5 @@ def auto_checkout():
     Auto checkout if time is after endTime
     """
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
-        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
+        c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         c.execute('''DELETE FROM occupants WHERE endTime < ?;''', (currentEasternTime(),))

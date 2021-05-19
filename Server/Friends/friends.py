@@ -20,6 +20,8 @@ def send_request(sender, recipient):
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
         User.validate(sender)
         User.validate(recipient)
+        if sender == recipient:
+            raise AssertionError("Cannot friend yourself :P")
         # raices exception if friendship already exists
         if recipient in all_friend_requests(sender):
             raise AssertionError(f"Already contacted {recipient}")

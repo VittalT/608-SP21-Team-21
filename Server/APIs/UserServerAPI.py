@@ -256,7 +256,7 @@ def request_handler(request):
         elif request["form"]["task"] == "updateOccupancy":
             # try:
             room = request["form"]["roomNum"]
-            occupancy = request["form"]["occupancy"]
+            occupancy = int(request["form"]["occupancy"])
             update_room_occupancy(room, occupancy)
             return json.dumps({'updateOccupancySuccess': True, 'status': None})
             # except:
@@ -265,7 +265,7 @@ def request_handler(request):
         elif request["form"]["task"] == "updateNoiseLevel":
             # try:
             room = request["form"]["roomNum"]
-            noiseLevel = request["form"]["noiseLevel"]
+            noiseLevel = Noise.str_to_enum(request["form"]["noiseLevel"])
             update_room_noiseLevel(room, noiseLevel)
             return json.dumps({'updateNoiseLevelSuccess': True, 'status': None})
             # except:
