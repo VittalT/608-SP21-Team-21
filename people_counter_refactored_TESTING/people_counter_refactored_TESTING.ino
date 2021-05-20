@@ -13,6 +13,8 @@
 
 WiFiClient client2; //global WiFiClient Secure object
 
+int timer = millis();
+
 const int RESPONSE_TIMEOUT = 6000; //ms to wait for response from host
 const uint16_t IN_BUFFER_SIZE = 2000; //size of buffer to hold HTTP request
 const uint16_t OUT_BUFFER_SIZE = 2800; //size of buffer to hold HTTP response
@@ -158,20 +160,21 @@ void loop(){
 //    center[0] = i;
 //    center[1] = i;
 //    i++;
-
-    delay(100);
-    getDistance(Zone);
-    
-    processPeopleCountingDataREFACTORED(distance, Zone);
-    Serial.println(PplCounter);
-    if (PplCounter!= old_PplCounter){ //only posts when the occupancy changes
-        Serial.println("People count changed!");
-//        post_to_server();
-        old_PplCounter = PplCounter;
+    if (millis()-timer>100){
+      timer = millis();
+      getDistance(Zone);
+      
+      processPeopleCountingDataREFACTORED(distance, Zone);
+      Serial.println(PplCounter);
+      if (PplCounter!= old_PplCounter){ //only posts when the occupancy changes
+          Serial.println("People count changed!");
+  //        post_to_server();
+          old_PplCounter = PplCounter;
+      }
+      // do the same to the other zone
+      Zone++;
+      Zone = Zone%2;
     }
-    // do the same to the other zone
-    Zone++;
-    Zone = Zone%2;
 
     
 //    Serial.print("Distance at ");
