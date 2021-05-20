@@ -112,12 +112,6 @@ def request_handler(request):
             room, endTime = roomInfo
             return json.dumps({'isCheckedInSuccess': True, 'status': None, 'isCheckedIn': True, 'roomNum': room, 'until': endTime})
 
-        elif request["values"]["task"] == "occupants":
-            with sqlite3.connect(database) as c:
-                c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
-                occupants = c.execute('''SELECT * FROM occupants;''').fetchall()
-            return occupants
-
         else:
             return KeyError("Unknown GET request")
 
