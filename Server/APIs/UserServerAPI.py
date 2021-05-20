@@ -275,12 +275,14 @@ def request_handler(request):
 QUIET_MODERATE_CUTOFF = 30
 MODERATE_HIGH_CUTOFF = 70
 def raw_noise_to_enum(rawNoiseLevel):
+    noisePref = 5
     if rawNoiseLevel < QUIET_MODERATE_CUTOFF:
-        return 1
+        noisePref = 1
     elif rawNoiseLevel >= MODERATE_HIGH_CUTOFF:
-        return 3
+        noisePref = 3
     else:
-        return 2
+        noisePref = 2
+    return Noise(noisePref)
 
 if __name__ == '__main2__':
     # print("\n\nWeek 1")
