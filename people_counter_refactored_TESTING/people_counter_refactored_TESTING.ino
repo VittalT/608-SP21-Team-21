@@ -71,7 +71,7 @@ static int old_PplCounter = 0;
 static int PplCounter = 0;
 
 static int ROI_height = 8;
-static int ROI_width = 2;
+static int ROI_width = 4;
 
 static int delay_between_measurements = 0;
 static int time_budget_in_ms = 0;
