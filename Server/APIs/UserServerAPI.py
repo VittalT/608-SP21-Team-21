@@ -259,7 +259,8 @@ def request_handler(request):
         elif request["form"]["task"] == "updateNoiseLevel":
             # try:
             room = request["form"]["roomNum"]
-            noiseLevel = Noise.str_to_enum(request["form"]["noiseLevel"])
+            rawNoiseLevel = float(request["form"]["noiseLevel"])
+            noiseLevel = raw_noise_to_enum(rawNoiseLevel)
             update_room_noiseLevel(room, noiseLevel)
             return json.dumps({'updateNoiseLevelSuccess': True, 'status': None})
             # except:
@@ -270,6 +271,16 @@ def request_handler(request):
 
     else:
         return KeyError("Unknown GET/POST request")
+
+QUIET_MODERATE_CUTOFF = 30
+MODERATE_HIGH_CUTOFF = 70
+def raw_noise_to_enum(rawNoiseLevel):
+    if rawNoiseLevel < QUIET_MODERATE_CUTOFF:
+        return 1
+    elif rawNoiseLevel >= MODERATE_HIGH_CUTOFF:
+        return 3
+    else:
+        return 2
 
 if __name__ == '__main2__':
     # print("\n\nWeek 1")
