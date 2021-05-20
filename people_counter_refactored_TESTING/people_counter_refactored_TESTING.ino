@@ -61,7 +61,7 @@ static int LeftPreviousStatus = NOBODY;
 static int RightPreviousStatus = NOBODY;
 
 //TODO: CALIBRATION
-static int center[2] = {200,235}; /* zone1, zone0: center of the two zones */  //HERE
+static int center[2] = {28,226}; /* zone1, zone0: center of the two zones */  //HERE
 /* Works: 87, 85, 84
 Faulty: 50, 80, 83, 88, 89 90, 150 */
 static int Zone = 0;
@@ -69,7 +69,7 @@ static int old_PplCounter = 0;
 static int PplCounter = 0;
 
 static int ROI_height = 8;
-static int ROI_width = 4;
+static int ROI_width = 2;
 
 static int delay_between_measurements = 0;
 static int time_budget_in_ms = 0;
@@ -145,6 +145,7 @@ void checkOptical(){
   }
 }
 
+int i=1;
 
 void loop(){
 //    getDistancetest();
@@ -153,6 +154,10 @@ void loop(){
 //    delay(9999999);
 
     //## UNCOMMENT THIS CHUCK
+
+//    center[0] = i;
+//    center[1] = i;
+//    i++;
 
     delay(100);
     getDistance(Zone);
@@ -167,6 +172,12 @@ void loop(){
     // do the same to the other zone
     Zone++;
     Zone = Zone%2;
+
+    
+//    Serial.print("Distance at ");
+//    Serial.print(center[0]);
+//    Serial.print(" is ");
+//    Serial.println(distance);
 
 
 // UNCOMMENT ENDS HERE

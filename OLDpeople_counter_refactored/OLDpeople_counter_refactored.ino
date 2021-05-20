@@ -52,7 +52,7 @@ static int SOMEONE = 1;
 static int LEFT = 0;
 static int RIGHT = 1;
 
-static int DIST_THRESHOLD_MAX[] = {400, 400};   // treshold of the two zones //HERE
+static int DIST_THRESHOLD_MAX[] = {300, 300};   // treshold of the two zones //HERE
 static int MIN_DISTANCE[] = {30, 30}; //HERE
 
 static int PathTrack[] = {0,0,0,0};
@@ -60,32 +60,16 @@ static int PathTrackFillingSize = 1; // init this to 1 as we start from state wh
 static int LeftPreviousStatus = NOBODY;
 static int RightPreviousStatus = NOBODY;
 
-//TODO: CALIBRATION
-<<<<<<< HEAD
-static int center[2] = {200,235}; /* zone1, zone0: center of the two zones */  //HERE
-=======
-<<<<<<< HEAD
-static int center[2] = {84,87}; /* zone1, zone0: center of the two zones */  //HERE
-=======
-static int center[2] = {200,235}; /* zone1, zone0: center of the two zones */  //HERE
->>>>>>> e71038995415b3994fbf7dc9fe3f7d222df1e0b0
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
+//TODO: CALIBRATION //##HELP I CHNAGED STATIC HERE
+int center[2] = {64,182}; /* zone1, zone0: center of the two zones */  //HERE
 /* Works: 87, 85, 84
-Faulty: 50, 80, 83, 88, 89 90, 150 */
+Faulty: 50, 80, 83, 88, 89, 90, 150 */
 static int Zone = 0;
 static int old_PplCounter = 0;
 static int PplCounter = 0;
 
 static int ROI_height = 8;
-<<<<<<< HEAD
-static int ROI_width = 4;
-=======
-<<<<<<< HEAD
 static int ROI_width = 8;
-=======
-static int ROI_width = 4;
->>>>>>> e71038995415b3994fbf7dc9fe3f7d222df1e0b0
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
 
 static int delay_between_measurements = 0;
 static int time_budget_in_ms = 0;
@@ -148,93 +132,33 @@ void zones_calibration(){
   }
 
 
-<<<<<<< HEAD
-void checkOptical(){
-  for (int i = 84; i<257; i++){
-      distanceSensor.setROI(ROI_height, ROI_width, i);  // first value: height of the zone, second value: width of the zone
-      distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
-      distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
-      distanceSensor.stopRanging();
-      Serial.print("i at ");
-      Serial.println(i);
-      Serial.print("Distance at: ");
-      Serial.println(distance);
-  }
-}
-
-=======
-<<<<<<< HEAD
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
+int i = 0;
 
 void loop(){
 //    getDistancetest();
-
-//    checkOptical();
-//    delay(9999999);
-
-    //## UNCOMMENT THIS CHUCK
-
-    delay(100);
+//    delay(50);
     getDistance(Zone);
+
     
-    processPeopleCountingDataREFACTORED(distance, Zone);
-    Serial.println(PplCounter);
+//    center[0] = i;
+//    center[1] = i;
+//    i++;
+    
+    processPeopleCountingData(distance, Zone);
+//    Serial.println(PplCounter);
     if (PplCounter!= old_PplCounter){ //only posts when the occupancy changes
         Serial.println("People count changed!");
-<<<<<<< HEAD
-//        post_to_server();
-=======
         post_to_server();
-=======
-void checkOptical(){
-  for (int i = 84; i<257; i++){
-      distanceSensor.setROI(ROI_height, ROI_width, i);  // first value: height of the zone, second value: width of the zone
-      distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
-      distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
-      distanceSensor.stopRanging();
-      Serial.print("i at ");
-      Serial.println(i);
-      Serial.print("Distance at: ");
-      Serial.println(distance);
-  }
-}
-
-
-void loop(){
-//    getDistancetest();
-
-//    checkOptical();
-//    delay(9999999);
-
-    //## UNCOMMENT THIS CHUCK
-
-    delay(100);
-    getDistance(Zone);
-    
-    processPeopleCountingDataREFACTORED(distance, Zone);
-    Serial.println(PplCounter);
-    if (PplCounter!= old_PplCounter){ //only posts when the occupancy changes
-        Serial.println("People count changed!");
-//        post_to_server();
->>>>>>> e71038995415b3994fbf7dc9fe3f7d222df1e0b0
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
         old_PplCounter = PplCounter;
     }
     // do the same to the other zone
     Zone++;
     Zone = Zone%2;
-<<<<<<< HEAD
-
-
-// UNCOMMENT ENDS HERE
-=======
-<<<<<<< HEAD
-=======
-
-
-// UNCOMMENT ENDS HERE
->>>>>>> e71038995415b3994fbf7dc9fe3f7d222df1e0b0
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
+//    Serial.print("Distance at ");
+//    Serial.print(center[0]);
+//    Serial.print(" is ");
+//    Serial.println(distance);
+    delay(50);
 }
 
 
@@ -255,31 +179,23 @@ void post_to_server(){
 //    PplCounter_len = strlen(char(PplCounter));
     offset += sprintf(request + offset, "Content-Length: %d\r\n\r\n", 25+strlen(room)+PplCounter_len);
     offset += sprintf(request + offset, "{\"room\":\"%s\",\"occupancy\":\"%d\"}\r\n", room, PplCounter);
-    Serial.println(request);
+//    Serial.println(request);
     
     do_http_request("608dev-2.net", request, response, OUT_BUFFER_SIZE, RESPONSE_TIMEOUT, true);
-    Serial.println("-----------");
-    Serial.println(response);
-    Serial.println("-----------");
+//    Serial.println("-----------");
+//    Serial.println(response);
+//    Serial.println("-----------");
 }
 
-<<<<<<< HEAD
-void getDistancetest(){
-=======
-<<<<<<< HEAD
-void getDistancetest()
-{
-=======
-void getDistancetest(){
->>>>>>> e71038995415b3994fbf7dc9fe3f7d222df1e0b0
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
-  distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
-  distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
-  distanceSensor.clearInterrupt();
-  distanceSensor.stopRanging();
-  Serial.print("distance: ");
-  Serial.println(distance/10.00);
-}
+//void getDistancetest()
+//{
+//  distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
+//  distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
+//  distanceSensor.clearInterrupt();
+//  distanceSensor.stopRanging();
+//  Serial.print("distance: ");
+//  Serial.println(distance/10.00);
+//}
 
 void getDistance(int current_zone)
 {
@@ -287,103 +203,12 @@ void getDistance(int current_zone)
   distanceSensor.startRanging(); //Write configuration bytes to initiate measurement
   distance = distanceSensor.getDistance(); //Get the result of the measurement from the sensor
   distanceSensor.stopRanging();
-  Serial.print("Zone ");
-  Serial.print(current_zone);
-  Serial.print(", distance: ");
-  Serial.println(distance);
+//  Serial.print("Zone ");
+//  Serial.print(current_zone);
+//  Serial.print(", distance: ");
+//  Serial.println(distance);
 }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
-int ABSENT = 0;
-int PRESENT = 1;
-
-int left_old_distance = 0;
-int right_old_distance = 0;
-
-int left_person = ABSENT;
-int right_person = ABSENT;
-
-int both_present = 0; // the number of boxes that has stuff in. both absent : 0; left check right not : 1; right check left not: 2; both check : 3
-int left_first = 0; //1: left first; 2: right first
-
-void processPeopleCountingDataREFACTORED(int16_t Distance, uint8_t zone){
-
-  if (zone == 0) {
-    if (Distance - left_old_distance < -100){
-      left_person = PRESENT;
-      Serial.println("left present");
-    }
-    else if (Distance - left_old_distance > 100){
-      left_person = ABSENT;
-      Serial.println("left absent");
-    }
-    left_old_distance = Distance;
-  }
-
-  else if (zone == 1) {
-    if (Distance - right_old_distance < -100){
-      right_person = PRESENT;
-      Serial.println("right present");
-    }
-    else if (Distance - right_old_distance > 100){
-      right_person = ABSENT;
-      Serial.println("right absent");
-    }
-    right_old_distance = Distance;
-  }
-  
-  // state switcher for keeping track of the two areas
-  
-  if (left_person == ABSENT && right_person == ABSENT){
-    both_present = 0;
-    Serial.println("nobody seen");
-  }
-  else if (both_present == 0){
-    if (left_person == PRESENT){
-      both_present = 1;
-      left_first = 1;
-    }
-    else if (right_person == PRESENT){
-      both_present = 2;
-      left_first = 2;
-    }
-  }
-
-  else if ((both_present == 1 && right_person == PRESENT) or (both_present == 2 && left_person == PRESENT)){ //one persons has been present, need to check whether the other's present
-    both_present = 3;
-    Serial.println("both present");
-  }
-
-  // INCREMENT PEOPLE COUNT
-  if (both_present == 3 && left_first == 1){
-    PplCounter ++;
-    both_present = 0;
-    left_first = 0;
-    left_person = ABSENT;
-    right_person = ABSENT;
-  }
-  else if (both_present == 3 && left_first == 2){
-    PplCounter --;
-    both_present = 0;
-    left_first = 0;
-    left_person = ABSENT;
-    right_person = ABSENT;
-  }
-
-  Serial.print("People counter: ");
-  Serial.println(PplCounter);
-
-  }
-    
-
-<<<<<<< HEAD
-=======
->>>>>>> e71038995415b3994fbf7dc9fe3f7d222df1e0b0
->>>>>>> d5e6ef3d556e114e5612f48b785261e11c45e56a
 
 void processPeopleCountingData(int16_t Distance, uint8_t zone) {
 
@@ -420,12 +245,12 @@ void processPeopleCountingData(int16_t Distance, uint8_t zone) {
 
     if (CurrentZoneStatus != RightPreviousStatus) {
 
-      // event in left zone has occured
+      // event in right zone has occured
       AnEventHasOccured = 1;
       if (CurrentZoneStatus == SOMEONE) {
         AllZonesCurrentStatus += 2;
       }
-      // need to left right zone as well ...
+      // need to check left zone as well ...
       if (LeftPreviousStatus == SOMEONE) {
         // event in left zone has occured
         AllZonesCurrentStatus += 1;
@@ -477,7 +302,6 @@ void processPeopleCountingData(int16_t Distance, uint8_t zone) {
       PathTrack[PathTrackFillingSize-1] = AllZonesCurrentStatus;
     }
     Serial.println("Pathtrack: ");
-    Serial.println(PathTrack[0]);
     Serial.println(PathTrack[1]);
     Serial.println(PathTrack[2]);
     Serial.println(PathTrack[3]);
