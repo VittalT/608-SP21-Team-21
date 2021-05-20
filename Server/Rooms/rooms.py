@@ -103,11 +103,13 @@ def get_room(name):
         else:
             return None
 
-def update_room_occupancy(room, occupancy):
+def update_room_occupancy(room, occupancy_additional):
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         validate_room(room)
-        c.execute('''UPDATE rooms SET occupancy=? WHERE name=?;''', (occupancy, room))
+        current_occupancy = c.execute('''SELECT occupancy FROM rooms WHERE name=?;''', (room,)).fetchone()[0]
+        new_occupancy = current_occupancy + occupancy_additional
+        c.execute('''UPDATE rooms SET occupancy=? WHERE name=?;''', (new_occupancy, room))
 
 
 def update_room_noiseLevel(room, noiseLevel):
