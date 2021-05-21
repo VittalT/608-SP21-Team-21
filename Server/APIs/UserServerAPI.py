@@ -77,6 +77,9 @@ def request_handler(request):
     - acceptFriend: user, token, friend
         - Returns:
         { addFriendSuccess: bool, status: string }
+    - ignoreFriend: user, token, friend
+        - Returns:
+        { ignoreFriendSuccess: bool, status: string }
     - removeFriend: user, token, friend
         - Returns:
         { removeFriendSuccess: bool, status: string }

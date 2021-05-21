@@ -149,7 +149,7 @@ def update_room_noiseLevel(room, noiseLevel):
         c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel.value, room))
 
 def get_friends_with_rooms(name):
-    """ 
+    """
     Gets all friends of a given user name, along with the room (if any) that they are in.
     """
     friends = get_friends(name)
