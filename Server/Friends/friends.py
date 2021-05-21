@@ -1,5 +1,5 @@
 import sys, os
-# sys.path.append(os.path.abspath(__file__))
+
 os.chdir('/var/jail/home/team21/Server')
 server_path = '/var/jail/home/team21/Server'
 sys.path.append(server_path)
@@ -11,11 +11,9 @@ database = '../database.db'
 
 def send_request(sender, recipient):
     """
-    Sends a friend request from the sender user to the
-    recipient user. Raises a KeyError if either user
-    does not exist and AssertionError if relationship
-    is already in database
+    Sends a friend request from the sender user to the recipient user.
     """
+
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS friends (sender text, recipient text, status text);''')
         User.validate(sender)
@@ -23,14 +21,14 @@ def send_request(sender, recipient):
         if sender == recipient:
             raise AssertionError("Cannot friend yourself :P")
         # raices exception if friendship already exists
-        if recipient in all_friend_requests(sender):
+        if c.execute('''SELECT EXISTS (SELECT 1 FROM friends WHERE sender=? AND recipient=?);''', (sender, recipient)).fetchone()[0]:
             raise AssertionError(f"Already contacted {recipient}")
         c.execute('''INSERT INTO friends VALUES (?, ?, ?);''', (sender, recipient, "pending"))
 
 
 def accept_request(user, sender):
     """
-    Accepts a friend request from a given user
+    Accepts a friend request from the sender user to the current user.
     """
     with sqlite3.connect(database) as c:
         User.validate(user)
@@ -46,7 +44,7 @@ def accept_request(user, sender):
 
 def remove_request(user, sender):
     """
-    Accepts a friend request from a given user
+    Ignores / removes a friend request from the sender user to the current user.
     """
     with sqlite3.connect(database) as c:
         User.validate(user)
@@ -62,7 +60,7 @@ def remove_request(user, sender):
 
 def remove_friend(user, friend):
     """
-    Accepts a friend request from a given user
+    Removes the friends status of current user and friend user.
     """
     with sqlite3.connect(database) as c:
         User.validate(user)
@@ -75,8 +73,7 @@ def remove_friend(user, friend):
 
 def all_friend_requests(name):
     """
-    Returns a dictionary containing all friend requests, along with status.
-    Raises a KeyError if user does not exist
+    Returns a dictionary containing all friend requests (both sent and received), along with status.
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
@@ -91,14 +88,16 @@ def all_friend_requests(name):
         return all_requests
 
 def pending_friend_requests(name):
+    """
+    Returns a dictionary containing all pending friend requests (both sent and received), along with status.
+    """
     all_requests = all_friend_requests(name)
     return {'sent': [friend_request for friend_request in all_requests['sent'] if friend_request['status'] == 'pending'],
             'received': [friend_request for friend_request in all_requests['received'] if friend_request['status'] == 'pending']}
 
 def get_friends(name):
     """
-    Returns a list containing all friends.
-    Raises a KeyError if user does not exist
+    Returns a list containing all friends of the user with the given name.
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:

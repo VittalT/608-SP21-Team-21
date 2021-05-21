@@ -1,11 +1,5 @@
 from enum import Enum
 
-import sys, os
-# print(os.path.dirname(os.path.abspath('')))
-
-def request_handler(request):
-    return os.path.dirname(os.path.abspath(os.getcwd()))
-
 class Noise(Enum):
     quiet = 1
     moderate = 2
@@ -14,6 +8,9 @@ class Noise(Enum):
     unknown = 5
 
     def str_form(self):
+        """
+        Converts a Noise enum to its associated string representation.
+        """
         if self == Noise.quiet:
             return 'quiet'
         elif self == Noise.moderate:
@@ -27,6 +24,9 @@ class Noise(Enum):
 
     @staticmethod
     def str_to_enum(noise):
+        """
+        Converts a noise string representation into its associated Noise enum.
+        """
         if noise == 'quiet':
             return Noise.quiet
         elif noise == 'moderate':

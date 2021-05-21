@@ -1,5 +1,5 @@
 import sys, os
-# sys.path.append(os.path.abspath(__file__))
+
 os.chdir('/var/jail/home/team21/Server')
 server_path = '/var/jail/home/team21/Server'
 sys.path.append(server_path)
@@ -17,6 +17,9 @@ from friends import *
 database = '../database.db'
 
 def currentEasternTime():
+    """
+    Returns the current Eastern Time.
+    """
     UTC = tz.gettz('UTC')
     ET = tz.gettz('America/New_York')
     dt_utc = datetime.utcnow().replace(tzinfo=UTC)
@@ -51,11 +54,17 @@ def update_rooms(rooms=None):
                 c.execute('''UPDATE rooms SET capacity=? WHERE name=?;''', (rooms[room], room))
 
 def exists_room(room):
+    """
+    Checks if a room with the given name exists within the database.
+    """
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         return c.execute('''SELECT EXISTS (SELECT 1 FROM rooms WHERE name = ?);''', (room,)).fetchone()[0]
 
 def validate_room(room):
+    """
+    Validates if a room with the given name exists within the database.
+    """
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         if not exists_room(room):
@@ -64,10 +73,9 @@ def validate_room(room):
 
 def add_occupant(name, room, duration, volumePref):
     """
-    Adds an occupant to a room. Raises a TypeError if occupant
-    is not a User object and a KeyError if room does not exist
+    Adds / checks in an occupant to a room, storing it in the database
+    along with volume preference and start/end times.
     """
-
     with sqlite3.connect(database) as c:
         User.validate(name)
         validate_room(room)
@@ -78,8 +86,7 @@ def add_occupant(name, room, duration, volumePref):
 
 def remove_occupant(name, room):
     """
-    Adds an occupant to a room. Raises a TypeError if occupant
-    is not a User object and a KeyError if room does not exist
+    Removes / checks out an occupant from a room.
     """
     with sqlite3.connect(database) as c:
         User.validate(name)
@@ -88,11 +95,17 @@ def remove_occupant(name, room):
         c.execute('''DELETE FROM occupants WHERE user = ? AND room = ?;''', (name, room))
 
 def user_in_rooms(name):
+    """
+    Checks if the given user name is checked in to a room.
+    """
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
         return c.execute('''SELECT EXISTS (SELECT 1 FROM occupants WHERE user = ?);''', (name,)).fetchone()[0]
 
 def get_room(name):
+    """
+    Returns the room that the user name is in, and returns None if not checked in.
+    """
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         User.validate(name)
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
@@ -103,7 +116,21 @@ def get_room(name):
         else:
             return None
 
-def update_room_occupancy(room, occupancy_additional):
+
+def update_room_occupancy(room, occupancy):
+    """
+    Updates the room occupancy of a given room.
+    """
+    with sqlite3.connect(database) as c:
+        c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
+        validate_room(room)
+        c.execute('''UPDATE rooms SET occupancy=? WHERE name=?;''', (occupancy, room))
+
+
+def increment_room_occupancy(room, occupancy_additional):
+    """
+    Increments the room occupancy of a given room.
+    """
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         validate_room(room)
@@ -113,12 +140,18 @@ def update_room_occupancy(room, occupancy_additional):
 
 
 def update_room_noiseLevel(room, noiseLevel):
+    """
+    Updates the room noise level of a given room.
+    """
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         validate_room(room)
         c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel.value, room))
 
 def get_friends_with_rooms(name):
+    """
+    Gets all friends of a given user name, along with the room (if any) that they are in.
+    """
     friends = get_friends(name)
     friends_with_rooms = []
     for friend in friends:
@@ -132,8 +165,8 @@ def get_friends_with_rooms(name):
 
 def get_room_info(room, name = None):
     """
-    Gets the data associated with a given room number. Raises
-    a KeyError if the room does not exist
+    Gets the capacity, occupancy, noise level, and minimal volume preference of a given room number,
+    along with friends in that room if a name is specified.
     """
     sqlite3.register_converter("user", User.convert_user)
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
@@ -174,12 +207,11 @@ def get_room_info(room, name = None):
         "friends": this_room_friends
     }
 
-# def get_room_info(room):
-#     room_info = get_room_info_with_occupants(room)
-#     del room_info["occupants"]
-#     return room_info
-
 def get_all_rooms_info(name = None):
+    """
+    Gets the capacity, occupancy, noise level, and minimal volume preference of all rooms
+    along with friends for each room if a name is specified.
+    """
     with sqlite3.connect(database) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS rooms (name text UNIQUE, capacity integer, occupancy integer, noiseLevel integer);''')
         rooms = c.execute('''SELECT name from rooms''').fetchall()
@@ -188,7 +220,7 @@ def get_all_rooms_info(name = None):
 
 def auto_checkout():
     """
-    Auto checkout if time is after endTime
+    Auto checkout any user that has not manually checked out after their end time.
     """
     with sqlite3.connect(database, detect_types=sqlite3.PARSE_DECLTYPES) as c:
         c.execute('''CREATE TABLE IF NOT EXISTS occupants (user text UNIQUE, room text, volumePref integer, startTime timestamp, endTime timestamp);''')
