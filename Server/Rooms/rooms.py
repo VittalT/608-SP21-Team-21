@@ -149,7 +149,7 @@ def update_room_noiseLevel(room, noiseLevel):
         c.execute('''UPDATE rooms SET noiseLevel=? WHERE name=?;''', (noiseLevel.value, room))
 
 def get_friends_with_rooms(name):
-    """
+    """ 
     Gets all friends of a given user name, along with the room (if any) that they are in.
     """
     friends = get_friends(name)
@@ -165,7 +165,7 @@ def get_friends_with_rooms(name):
 
 def get_room_info(room, name = None):
     """
-    Gets the capacity, occupancy, noise level, and minimal volume preference of a given room number,
+    Gets the capacity, occupancy, noise level, and aggregate volume preference of a given room number,
     along with friends in that room if a name is specified.
     """
     sqlite3.register_converter("user", User.convert_user)
